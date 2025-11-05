@@ -65,6 +65,8 @@
             justify-content: center;
             flex-shrink: 0;
             position: relative;
+            background: white;
+            border-radius: 8px;
         }
 
         .nav-logo img {
@@ -1193,7 +1195,11 @@
                 "instructions.auto_cap": "Auto-Cap: Values over 10 automatically become 10",
                 "instructions.real_time": "Real-Time Updates: Totals update as you type",
                 "instructions.auto_save": "Auto-Save: All data saves automatically",
-                "instructions.finish": "Finish: Click \"Finish Tournament\" when all scores are entered"
+                "instructions.finish": "Finish: Click \"Finish Tournament\" when all scores are entered",
+                "pwa.install_title": "Install App",
+                "pwa.install_text": "Add SDK Muta Kalkulator to your home screen for quick access!",
+                "pwa.install_btn": "Install",
+                "pwa.install_later": "Later"
             },
             sl: {
                 "tournament.tournament": "Turneja",
@@ -1263,7 +1269,11 @@
                 "instructions.auto_cap": "Samodejni zgornji limit: Vrednosti nad 10 postanejo 10",
                 "instructions.real_time": "Posodabljanje v realnem času: Skupni znesek se posodablja med pisanjem",
                 "instructions.auto_save": "Samodejno shranjevanje: Vsi podatki se samodejno shranijo",
-                "instructions.finish": "Zaključi: Kliknite \"Zaključi Turnir\" ko so vsi rezultati vneseni"
+                "instructions.finish": "Zaključi: Kliknite \"Zaključi Turnir\" ko so vsi rezultati vneseni",
+                "pwa.install_title": "Namestite aplikacijo",
+                "pwa.install_text": "Dodajte SDK Muta Kalkulator na domačo ploščo za hiter dostop!",
+                "pwa.install_btn": "Namestite",
+                "pwa.install_later": "Pozneje"
             }
         };
 
@@ -1606,6 +1616,7 @@
 
             // Update all translated elements
             updateAllTranslations();
+            updateInstallPromptText();
 
             // Update navbar title in new language
             const currentView = document.querySelector('.view.active');
@@ -2464,33 +2475,40 @@
         installPromptElement.id = 'install-prompt';
         installPromptElement.style.cssText = `
             position: fixed;
-            bottom: 20px;
+            top: 20px;
+            left: 20px;
             right: 20px;
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-            max-width: 320px;
+            max-width: 400px;
             z-index: 1000;
             display: none;
             font-family: inherit;
         `;
-        installPromptElement.innerHTML = `
-            <div style="margin-bottom: 1rem;">
-                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">Install App</h3>
-                <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">Add SDK Muta Kalkulator to your home screen for quick access!</p>
-            </div>
-            <div style="display: flex; gap: 0.75rem;">
-                <button id="install-btn" style="flex: 1; padding: 0.75rem; background: white; color: #007bff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                    Install
-                </button>
-                <button id="install-close-btn" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                    Later
-                </button>
-            </div>
-        `;
+
+        function updateInstallPromptText() {
+            const t = translations[app.language];
+            installPromptElement.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">${t['pwa.install_title']}</h3>
+                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">${t['pwa.install_text']}</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button id="install-btn" style="flex: 1; padding: 0.75rem; background: white; color: #007bff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                        ${t['pwa.install_btn']}
+                    </button>
+                    <button id="install-close-btn" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                        ${t['pwa.install_later']}
+                    </button>
+                </div>
+            `;
+        }
+
         document.body.appendChild(installPromptElement);
+        updateInstallPromptText();
 
         // Listen for the beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
