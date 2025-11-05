@@ -731,6 +731,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
             cursor: pointer;
+            position: relative;
         }
 
         .history-card:hover {
@@ -809,6 +810,36 @@
             font-size: 0.85rem;
             color: #666;
             text-align: center;
+        }
+
+        .history-card-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+
+        .history-card:hover .history-card-delete {
+            opacity: 1;
+        }
+
+        .history-card-delete:hover {
+            background: #c82333;
+            transform: scale(1.1);
         }
 
         /* ===== BUTTONS ===== */
@@ -2258,6 +2289,36 @@
         }
 
         /**
+         * Delete tournament from history by timestamp
+         */
+        function deleteHistoryItem(timestamp) {
+            if (!confirm('Delete this tournament from history?')) {
+                return;
+            }
+
+            if (!db) {
+                console.warn('[App] Database not initialized, cannot delete history');
+                return;
+            }
+
+            const transaction = db.transaction(HISTORY_STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(HISTORY_STORE_NAME);
+            const deleteRequest = store.delete(timestamp);
+
+            deleteRequest.onsuccess = () => {
+                console.log('[App] Tournament deleted from history:', timestamp);
+                // Refresh the history display
+                displayParticipantsPageHistory();
+                displayTournamentHistory();
+            };
+
+            deleteRequest.onerror = () => {
+                console.error('[App] Error deleting from history:', deleteRequest.error);
+                alert('Error deleting tournament from history');
+            };
+        }
+
+        /**
          * Display tournament history
          */
         function displayTournamentHistory() {
@@ -2374,6 +2435,7 @@
                     card.className = 'history-card';
                     card.style.cursor = 'pointer';
                     card.innerHTML = `
+                        <button class="history-card-delete" title="Delete tournament" onclick="event.stopPropagation(); deleteHistoryItem(${tournament.timestamp})">✕</button>
                         <div class="history-card-date">${dateStr}</div>
                         <div class="history-card-config">${configStr}</div>
                         <div class="history-card-podium">
