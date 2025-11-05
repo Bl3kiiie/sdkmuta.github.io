@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#007bff">
+    <meta name="description" content="SDK Muta - Kalkulator Basic Tournament Scoring Application">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <title>SDK Muta - Kalkulator Basic</title>
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: #333;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e1e5e9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 10px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .nav-logo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 10px;
+        }
+
+        .nav-logo {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .nav-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .nav-version {
+            background: #6c757d;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            margin-left: 4px;
+        }
+
+        .nav-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .lang-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #333;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .lang-btn:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+            color: #007bff;
+        }
+
+        .lang-btn.active {
+            background: #007bff;
+            border-color: #0056b3;
+            color: white;
+        }
+
+        .lang-btn.active:hover {
+            background: #0056b3;
+            color: white;
+        }
+
+        .help-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #666;
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-btn:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+            color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .help-btn.active {
+            background: #007bff;
+            border-color: #0056b3;
+            color: white;
+        }
+
+        .instructions-panel {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 100%);
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .instructions-panel.active {
+            display: block;
+        }
+
+        .instructions-panel h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .instructions-panel ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .instructions-panel li {
+            margin: 0.5rem 0;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .instructions-panel strong {
+            color: #007bff;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .app-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* ===== VIEWS ===== */
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .view h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        /* ===== SEARCH BOX ===== */
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* ===== PLAYERS LIST ===== */
+        .players-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .player-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .player-card.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        .player-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .player-card.selected .player-checkbox {
+            background-color: white;
+            border-color: white;
+        }
+
+        .player-checkbox::after {
+            content: '✓';
+            color: #007bff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .player-card.selected .player-checkbox::after {
+            display: block;
+            color: #007bff;
+        }
+
+        .player-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .player-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .player-card.selected .player-name {
+            color: white;
+        }
+
+        .player-id {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .player-card.selected .player-id {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .player-delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+
+        .player-delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .player-card.selected .player-delete-btn {
+            background: #ff6b6b;
+        }
+
+        .player-card.selected .player-delete-btn:hover {
+            background: #fa5252;
+        }
+
+        /* ===== CONFIG SECTION ===== */
+        .config-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .config-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .config-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .input-field label {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .input-field input {
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* ===== SUMMARY BOX ===== */
+        .summary-box {
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-box h3 {
+            color: #1976d2;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .summary-box p {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        /* ===== SCORING ===== */
+        .scores-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .score-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 1rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .score-player-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .targets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .target {
+            background: var(--light-gray);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .target label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .target input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: white;
+            min-height: 3.2rem;
+            line-height: 1.6;
+        }
+
+        .target input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* Yellow highlight for 10s */
+        .target input.value-ten {
+            background-color: #ffd700;
+            border-color: #ff8c00;
+            color: #000;
+            font-weight: 700;
+            box-shadow: inset 0 0 0 2px #ff8c00;
+        }
+
+        .target input.value-ten:focus {
+            border-color: #ff6600;
+            box-shadow: inset 0 0 0 2px #ff6600, 0 0 0 3px rgba(255, 102, 0, 0.4);
+        }
+
+        .score-summary {
+            background: rgba(90, 143, 209, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item label {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .summary-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* ===== RESULTS ===== */
+        .results-table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .results-table thead {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+        .results-table th {
+            padding: 1.2rem 1rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+        }
+
+        .results-table th:first-child {
+            text-align: center;
+            width: 80px;
+        }
+
+        .results-table th:nth-child(2) {
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .results-table th:nth-child(3),
+        .results-table th:nth-child(4) {
+            width: 110px;
+        }
+
+        .results-table td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .results-table td:nth-child(2) {
+            text-align: left;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .results-table td:first-child {
+            width: 80px;
+        }
+
+        .results-table td:nth-child(3),
+        .results-table td:nth-child(4) {
+            width: 110px;
+        }
+
+        .results-table tbody tr {
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 8px;
+        }
+
+        .results-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 8px 0;
+        }
+
+        .position-badge {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .position-badge.gold {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .position-badge.silver {
+            background-color: #c0c0c0;
+            color: #333;
+        }
+
+        .position-badge.bronze {
+            background-color: #cd7f32;
+            color: white;
+        }
+
+        .player-score-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* ===== HISTORY ===== */
+        .history-container {
+            margin-bottom: 2rem;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .history-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .history-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .history-card-date {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-card-config {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .history-card-winner {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .history-card-winner-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .history-card-winner-score {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .history-card-podium {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .podium-entry {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .podium-entry .medal {
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
+
+        .podium-entry .name {
+            flex: 1;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .podium-entry .score {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .history-card-players {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+        }
+
+        /* ===== BUTTONS ===== */
+        .view-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: 2px solid #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+            border-color: #007bff;
+            color: #007bff;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #333;
+            border: 2px solid #ffc107;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+            border: 2px solid #17a2b8;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+            transform: translateY(-1px);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .players-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .scores-container {
+                grid-template-columns: 1fr;
+            }
+
+            .config-options {
+                grid-template-columns: 1fr;
+            }
+
+            .view-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .view h2 {
+                display: none;
+            }
+
+            .nav-title {
+                display: none;
+            }
+
+            .target {
+                min-width: 70px;
+            }
+
+            .targets-grid {
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo-title">
+                <div class="nav-logo">
+                    <img src="logo.svg" alt="SDK Muta Logo" style="width: 48px; height: 48px;">
+                    <span class="nav-version">v1.0.0</span>
+                </div>
+                <h1 class="nav-title" id="navbar-title">SDK Muta - Kalkulator Basic</h1>
+            </div>
+            <div class="nav-right">
+                <button class="help-btn" id="help-toggle-btn" onclick="toggleInstructions()" title="Show/Hide Instructions" style="display: none;">?</button>
+                <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
+                <button class="lang-btn active" onclick="changeLanguage('sl')">SL</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Application Container -->
+    <div class="app-container">
+        <!-- View 1: Participant Selection -->
+        <div id="view-participants" class="view active">
+            <h2 data-i18n="players.player_management">Player Management</h2>
+
+            <div class="instructions-panel" id="instructions-participants">
+                <h3>📋 <span data-i18n="instructions.title">Instructions</span></h3>
+                <ol>
+                    <li><span data-i18n="instructions.search">Search Players: Type a player name to find them quickly</span></li>
+                    <li><span data-i18n="instructions.select">Select Players: Click on player cards to select/deselect them</span></li>
+                    <li><span data-i18n="instructions.add_new">Add New: Enter a name and click "Add" to add new players</span></li>
+                    <li><span data-i18n="instructions.delete">Delete: Click the ✕ button on a player card to remove them</span></li>
+                    <li><span data-i18n="instructions.continue">Continue: Once you've selected players, click "Next"</span></li>
+                </ol>
+            </div>
+
+            <div class="search-box">
+                <input type="text"
+                       id="player-search"
+                       placeholder="Search players..."
+                       data-i18n-placeholder="league.search_players_placeholder"
+                       onkeyup="filterPlayers()">
+            </div>
+            <div class="players-list" id="players-list"></div>
+
+            <!-- Tournament History Section -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #e9ecef;">
+                <h3 style="font-size: 1.4rem; margin-bottom: 1.5rem; color: #2c3e50;" data-i18n="results.history_title">Tournament History</h3>
+                <div class="history-container" id="participants-history-container">
+                    <div class="history-empty" id="participants-history-empty">
+                        <p data-i18n="results.no_history">No tournaments yet. Start a tournament to build history!</p>
+                    </div>
+                    <div class="history-list" id="participants-history-list"></div>
+                </div>
+            </div>
+
+            <div class="view-actions">
+                <button class="btn btn-primary" onclick="proceedToConfig()">
+                    <span data-i18n="general.next">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- View 2: Tournament Configuration -->
+        <div id="view-config" class="view">
+            <h2 data-i18n="tournament.tournament_setup">Tournament Setup</h2>
+
+            <div class="instructions-panel" id="instructions-config">
+                <h3>📋 <span data-i18n="instructions.title">Instructions</span></h3>
+                <ol>
+                    <li><span data-i18n="instructions.targets">Number of Targets: How many targets will each player shoot at?</span></li>
+                    <li><span data-i18n="instructions.bullets">Bullets per Target: How many bullets/shots per target?</span></li>
+                    <li><span data-i18n="instructions.total">Total Shots: Automatically calculated (Targets × Bullets)</span></li>
+                    <li><span data-i18n="instructions.example">Example: 20 targets × 2 bullets = 40 total shots</span></li>
+                    <li><span data-i18n="instructions.config_continue">Continue: Click "Next" to start entering scores</span></li>
+                </ol>
+            </div>
+
+            <div class="config-section">
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="input-field">
+                        <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem;" data-i18n="tournament.targets">Number of Targets:</label>
+                        <input type="number"
+                               id="targets-input"
+                               value="20"
+                               min="1"
+                               max="100"
+                               onchange="updateTotalShots()"
+                               onkeyup="updateTotalShots()"
+                               style="padding: 0.8rem; font-size: 1rem; border: 2px solid #e9ecef; border-radius: 8px; text-align: center; transition: all 0.2s ease; width: 100%;">
+                    </div>
+                </div>
+                <div>
+                    <div class="input-field">
+                        <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem;" data-i18n="tournament.shots_per_target">Shots per Target:</label>
+                        <input type="number"
+                               id="bullets-per-target"
+                               value="2"
+                               min="1"
+                               max="20"
+                               onchange="updateTotalShots()"
+                               onkeyup="updateTotalShots()"
+                               style="padding: 0.8rem; font-size: 1rem; border: 2px solid #e9ecef; border-radius: 8px; text-align: center; transition: all 0.2s ease; width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3 data-i18n="results.total_shots">Total Shots:</h3>
+                <p id="total-shots-display">40</p>
+            </div>
+
+            <div class="view-actions">
+                <button class="btn btn-secondary" onclick="goToView('view-participants')">
+                    <span data-i18n="general.back">Back</span>
+                </button>
+                <button class="btn btn-primary" onclick="proceedToScoring()">
+                    <span data-i18n="general.next">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- View 3: Score Entry -->
+        <div id="view-scoring" class="view">
+            <h2 data-i18n="scoring.enter_scores">Enter Scores</h2>
+
+            <div class="instructions-panel" id="instructions-scoring">
+                <h3>📋 <span data-i18n="instructions.title">Instructions</span></h3>
+                <ol>
+                    <li><span data-i18n="instructions.range">Score Range: Enter scores from 0 to 10</span></li>
+                    <li><span data-i18n="instructions.miss">0 = Miss: No points for that shot</span></li>
+                    <li><span data-i18n="instructions.regular">1-9 = Regular: Points for partial hits</span></li>
+                    <li><span data-i18n="instructions.perfect">10 = Perfect: Perfect shot (highlighted in YELLOW ✨)</span></li>
+                    <li><span data-i18n="instructions.auto_cap">Auto-Cap: Values over 10 automatically become 10</span></li>
+                    <li><span data-i18n="instructions.real_time">Real-Time Updates: Totals update as you type</span></li>
+                    <li><span data-i18n="instructions.auto_save">Auto-Save: All data saves automatically</span></li>
+                    <li><span data-i18n="instructions.finish">Finish: Click "Finish Tournament" when all scores are entered</span></li>
+                </ol>
+            </div>
+
+            <div class="scores-container" id="scores-container"></div>
+
+            <div class="view-actions">
+                <button class="btn btn-secondary" onclick="goToView('view-config')">
+                    <span data-i18n="general.back">Back</span>
+                </button>
+                <button class="btn btn-warning" onclick="clearAllScores()">
+                    <span data-i18n="scoring.clear_all">Clear All</span>
+                </button>
+                <button class="btn btn-primary" onclick="proceedToResults()">
+                    <span data-i18n="scoring.finish_tournament">Finish Tournament</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- View 4: Results Display -->
+        <div id="view-results" class="view">
+            <h2 data-i18n="results.final_results">Final Results</h2>
+
+            <div class="results-table-container">
+                <table class="results-table" id="results-table"></table>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn btn-info" onclick="downloadExcel()">
+                    📥 <span data-i18n="results.export_excel">Download Excel</span>
+                </button>
+                <button class="btn btn-secondary" onclick="startNewTournament()">
+                    <span data-i18n="general.new_tournament">Start New Tournament</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- View 5: Tournament History -->
+        <div id="view-history" class="view">
+            <h2 data-i18n="results.history_title">Tournament History</h2>
+
+            <div class="history-container" id="history-container">
+                <div class="history-empty" id="history-empty">
+                    <p data-i18n="results.no_history">No tournaments yet. Start a tournament to build history!</p>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </div>
+
+            <div class="view-actions">
+                <button class="btn btn-secondary" onclick="startNewTournament()">
+                    <span data-i18n="general.new_tournament">Start New Tournament</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== TRANSLATION OBJECT =====
+        const translations = {
+            en: {
+                "tournament.tournament": "Tournament",
+                "players.player_management": "Player Management",
+                "players.player": "Player",
+                "players.name_placeholder": "Player name...",
+                "league.search_players_placeholder": "Search players...",
+                "league.no_players_selected": "Please select at least one player!",
+                "general.next": "Next",
+                "general.back": "Back",
+                "general.save": "Download Excel",
+                "general.status": "Bullets per Target:",
+                "tournament.targets": "Number of Targets:",
+                "tournament.shots_per_target": "Shots per Target:",
+                "general.new_tournament": "Start New Tournament",
+                "tournament.tournament_setup": "Tournament Setup",
+                "tournament_types.4_targets": "4 Targets",
+                "tournament_types.4_targets_desc": "Quick format (5 shots each)",
+                "tournament_types.20_targets": "20 Targets",
+                "tournament_types.20_targets_desc": "Standard format (2 shots each)",
+                "tournament_types.40_targets": "40 Targets",
+                "tournament_types.40_targets_desc": "Extended format (2 shots each)",
+                "results.total_shots": "Total Shots:",
+                "results.final_results": "Final Results",
+                "results.title": "Tournament Results",
+                "results.date": "Date",
+                "results.score": "Score",
+                "results.position": "Position",
+                "results.tens": "Tens",
+                "results.total_score": "Total Score",
+                "results.export_excel": "Download Excel",
+                "results.view_history": "View History",
+                "results.history_title": "Tournament History",
+                "results.no_history": "No tournaments yet. Start a tournament to build history!",
+                "results.targets": "targets",
+                "results.shots": "shots",
+                "results.points": "points",
+                "results.players": "players",
+                "scoring.enter_scores": "Enter Scores",
+                "scoring.clear_all": "Clear All",
+                "scoring.finish_tournament": "Finish Tournament",
+                "scoring.target": "Target",
+                "players.add_new_player": "Add new player",
+                "players.add_button": "Add",
+                "players.reset_button": "Reset Players",
+                "messages.confirm_delete": "Are you sure you want to clear all scores?",
+                "messages.email_sent": "Results sent successfully!",
+                "messages.email_error": "Error sending email. Please try again.",
+                "instructions.title": "Instructions",
+                "instructions.participants": "Instructions for Player Selection",
+                "instructions.search": "Search Players: Type a player name to find them quickly",
+                "instructions.select": "Select Players: Click on player cards to select/deselect them",
+                "instructions.add_new": "Add New: Enter a name and click \"Add\" to add new players",
+                "instructions.delete": "Delete: Click the ✕ button on a player card to remove them",
+                "instructions.continue": "Continue: Once you've selected players, click \"Next\"",
+                "instructions.config": "Instructions for Tournament Configuration",
+                "instructions.targets": "Number of Targets: How many targets will each player shoot at?",
+                "instructions.bullets": "Bullets per Target: How many bullets/shots per target?",
+                "instructions.total": "Total Shots: Automatically calculated (Targets × Bullets)",
+                "instructions.example": "Example: 20 targets × 2 bullets = 40 total shots",
+                "instructions.config_continue": "Continue: Click \"Next\" to start entering scores",
+                "instructions.scoring": "Instructions for Score Entry",
+                "instructions.range": "Score Range: Enter scores from 0 to 10",
+                "instructions.miss": "0 = Miss: No points for that shot",
+                "instructions.regular": "1-9 = Regular: Points for partial hits",
+                "instructions.perfect": "10 = Perfect: Perfect shot (highlighted in YELLOW ✨)",
+                "instructions.auto_cap": "Auto-Cap: Values over 10 automatically become 10",
+                "instructions.real_time": "Real-Time Updates: Totals update as you type",
+                "instructions.auto_save": "Auto-Save: All data saves automatically",
+                "instructions.finish": "Finish: Click \"Finish Tournament\" when all scores are entered"
+            },
+            sl: {
+                "tournament.tournament": "Turneja",
+                "players.player_management": "Upravljanje igralcev",
+                "players.player": "Igralec",
+                "players.name_placeholder": "Ime igralca...",
+                "league.search_players_placeholder": "Iskanje igralcev...",
+                "league.no_players_selected": "Prosimo, izberite vsaj enega igralca!",
+                "general.next": "Naprej",
+                "general.back": "Nazaj",
+                "general.save": "Preuzmite Excel",
+                "general.status": "Naboji na tarčo:",
+                "tournament.targets": "Število tarč:",
+                "tournament.shots_per_target": "Strelov na tarčo:",
+                "general.new_tournament": "Začni novi Turnir",
+                "tournament.tournament_setup": "Nastavitev Turnirja",
+                "tournament_types.4_targets": "4 Tarče",
+                "tournament_types.4_targets_desc": "Hiter format (5 strelov vsako)",
+                "tournament_types.20_targets": "20 Tarč",
+                "tournament_types.20_targets_desc": "Standardni format (2 strela vsako)",
+                "tournament_types.40_targets": "40 Tarč",
+                "tournament_types.40_targets_desc": "Razširjen format (2 strela vsako)",
+                "results.total_shots": "Skupno število strelov",
+                "results.final_results": "Končni rezultati",
+                "results.title": "Rezultati Turnirja",
+                "results.date": "Datum",
+                "results.score": "Rezultat",
+                "results.position": "Mesto",
+                "results.tens": "Desetke",
+                "results.total_score": "Skupni rezultat",
+                "results.export_excel": "Prenesi Excel",
+                "results.view_history": "Poglej zgodovino",
+                "results.history_title": "Zgodovina Turnirjev",
+                "results.no_history": "Ni turnirjev. Začni turnir, da zgradimo zgodovino!",
+                "results.targets": "tarč",
+                "results.shots": "strelov",
+                "results.points": "točk",
+                "results.players": "igralci",
+                "scoring.enter_scores": "Vnos rezultatov",
+                "scoring.clear_all": "Počisti vse",
+                "scoring.finish_tournament": "Zaključi turnir",
+                "scoring.target": "Tarča",
+                "players.add_new_player": "Dodaj novega igralca",
+                "players.add_button": "Dodaj",
+                "players.reset_button": "Resetiraj igralce",
+                "messages.confirm_delete": "Ali ste prepričani, da želite izbrisati vse rezultate?",
+                "messages.email_sent": "Rezultati so bili uspešno poslani!",
+                "messages.email_error": "Napaka pri pošiljanju e-pošte. Prosimo, poskusite znova.",
+                "instructions.title": "Navodila",
+                "instructions.participants": "Navodila za izbiro igralcev",
+                "instructions.search": "Iskanje igralcev: Vnesite ime igralca za hitro iskanje",
+                "instructions.select": "Izberi igralce: Klikni na kartice igralcev za izbiro/odselekcioniraj jih",
+                "instructions.add_new": "Dodaj novega: Vnesite ime in kliknite \"Dodaj\" za dodajanje novih igralcev",
+                "instructions.delete": "Izbriši: Kliknite gumb ✕ na kartici igralca za njihovo odstranitev",
+                "instructions.continue": "Nadaljuj: Ko ste izbrali igralce, kliknite \"Naprej\"",
+                "instructions.config": "Navodila za konfiguracija turnirja",
+                "instructions.targets": "Število tarč: Koliko tarč bo vsak igralec streljal?",
+                "instructions.bullets": "Naboji na tarčo: Koliko nabojev/strelov na tarčo?",
+                "instructions.total": "Skupni strelov: Samodejno izračunano (Tarče × Naboji)",
+                "instructions.example": "Primer: 20 tarč × 2 naboja = 40 skupnih strelov",
+                "instructions.config_continue": "Nadaljuj: Kliknite \"Naprej\" za začetek vnosa rezultatov",
+                "instructions.scoring": "Navodila za vnos rezultatov",
+                "instructions.range": "Razpon rezultatov: Vnesite rezultate od 0 do 10",
+                "instructions.miss": "0 = Zmanka: Brez točk za ta strel",
+                "instructions.regular": "1-9 = Normalno: Točke za delne zadetke",
+                "instructions.perfect": "10 = Popolno: Popoln strel (označen v RUMENI barvi ✨)",
+                "instructions.auto_cap": "Samodejni zgornji limit: Vrednosti nad 10 postanejo 10",
+                "instructions.real_time": "Posodabljanje v realnem času: Skupni znesek se posodablja med pisanjem",
+                "instructions.auto_save": "Samodejno shranjevanje: Vsi podatki se samodejno shranijo",
+                "instructions.finish": "Zaključi: Kliknite \"Zaključi Turnir\" ko so vsi rezultati vneseni"
+            }
+        };
+
+        // ===== APPLICATION STATE =====
+        const app = {
+            language: 'sl',
+            selectedPlayers: [],
+            allPlayers: [],
+            defaultPlayers: [],
+            tournamentConfig: { targets: 20, bulletsPerTarget: 2, totalShots: 40 },
+            scores: {},
+            lastResults: null
+        };
+
+        /* ===== INDEXEDDB STORAGE HANDLERS ===== */
+        const DB_NAME = 'tournament_db';
+        const STORE_NAME = 'players';
+        const HISTORY_STORE_NAME = 'tournament_history';
+        const TOURNAMENT_STATE_KEY = 'tournament_state_v1';
+        let db = null;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 2);
+
+                request.onerror = () => {
+                    console.error('[App] IndexedDB open error:', request.error);
+                    reject(request.error);
+                };
+
+                request.onsuccess = () => {
+                    db = request.result;
+                    console.log('[App] IndexedDB opened successfully');
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        console.log('[App] Created players object store');
+                    }
+                    if (!database.objectStoreNames.contains(HISTORY_STORE_NAME)) {
+                        database.createObjectStore(HISTORY_STORE_NAME, { keyPath: 'timestamp' });
+                        console.log('[App] Created tournament history object store');
+                    }
+                };
+            });
+        }
+
+        function loadPlayersFromStorage() {
+            if (!db) {
+                console.warn('[App] Database not initialized, using in-memory');
+                app.allPlayers = [...app.defaultPlayers];
+                return Promise.resolve();
+            }
+
+            return new Promise((resolve) => {
+                const transaction = db.transaction(STORE_NAME, 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    if (request.result.length > 0) {
+                        app.allPlayers = request.result;
+                        console.log('[App] Loaded players from IndexedDB:', app.allPlayers.length);
+                    } else {
+                        console.log('[App] No players in IndexedDB, using defaults');
+                        app.allPlayers = [...app.defaultPlayers];
+                    }
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    console.warn('[App] Error loading from IndexedDB, using defaults');
+                    app.allPlayers = [...app.defaultPlayers];
+                    resolve();
+                };
+            });
+        }
+
+        function savePlayersToStorage() {
+            if (!db) {
+                console.warn('[App] Database not initialized, cannot save');
+                return Promise.reject('DB not initialized');
+            }
+
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+
+                // Clear all and re-add
+                store.clear();
+
+                app.allPlayers.forEach(player => {
+                    store.add(player);
+                });
+
+                transaction.oncomplete = () => {
+                    console.log('[App] Players saved to IndexedDB:', app.allPlayers.length);
+                    resolve();
+                };
+
+                transaction.onerror = () => {
+                    console.error('[App] Error saving to IndexedDB:', transaction.error);
+                    reject(transaction.error);
+                };
+            });
+        }
+
+        function resetPlayerDatabase() {
+            if (confirm("Reset player database to default?")) {
+                if (!db) {
+                    app.allPlayers = [...app.defaultPlayers];
+                    renderPlayersList();
+                    alert("Player database reset!");
+                    return;
+                }
+
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.clear();
+
+                transaction.oncomplete = () => {
+                    app.allPlayers = [...app.defaultPlayers];
+                    renderPlayersList();
+                    alert("Player database reset!");
+                };
+            }
+        }
+
+        /**
+         * Save current tournament state to localStorage
+         */
+        function saveTournamentState() {
+            const state = {
+                selectedPlayers: app.selectedPlayers,
+                tournamentConfig: app.tournamentConfig,
+                scores: app.scores,
+                currentView: document.querySelector('.view.active')?.id || 'view-participants',
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem(TOURNAMENT_STATE_KEY, JSON.stringify(state));
+            console.log('[App] Tournament state saved');
+        }
+
+        /**
+         * Load tournament state from localStorage
+         */
+        function loadTournamentState() {
+            const stored = localStorage.getItem(TOURNAMENT_STATE_KEY);
+            if (!stored) {
+                console.log('[App] No saved tournament state found');
+                return null;
+            }
+
+            try {
+                const state = JSON.parse(stored);
+                console.log('[App] Tournament state loaded:', state);
+                return state;
+            } catch (e) {
+                console.warn('[App] Error loading tournament state:', e);
+                return null;
+            }
+        }
+
+        /**
+         * Restore tournament state from localStorage
+         */
+        function restoreTournamentState() {
+            const state = loadTournamentState();
+            if (!state) return;
+
+            // Restore tournament data
+            app.selectedPlayers = state.selectedPlayers || [];
+            app.tournamentConfig = state.tournamentConfig || { targets: 20, bulletsPerTarget: 2, totalShots: 40 };
+            app.scores = state.scores || {};
+
+            // Re-render the player list to show previously selected players as selected
+            if (app.selectedPlayers.length > 0) {
+                renderPlayersList();
+            }
+
+            // Log restoration
+            if (app.selectedPlayers.length > 0) {
+                console.log('[App] Restoring tournament with players:', app.selectedPlayers.map(p => p.name));
+            }
+        }
+
+        /**
+         * Clear saved tournament state
+         */
+        function clearTournamentState() {
+            localStorage.removeItem(TOURNAMENT_STATE_KEY);
+            app.selectedPlayers = [];
+            app.scores = {};
+            app.lastResults = null;
+            console.log('[App] Tournament state cleared');
+        }
+
+        /* ===== TRANSLATION, VIEW, and UTILITY FUNCTIONS ===== */
+        /* (unchanged — t(), changeLanguage(), updateAllTranslations(), goToView() etc.) */
+
+        /* ===== VIEW 1: PARTICIPANT SELECTION ===== */
+        function loadPlayers() {
+            loadPlayersFromStorage();
+            renderPlayersList();
+        }
+
+        /* Add Player Function */
+        async function addPlayer(name) {
+            if (!name.trim()) return;
+            const newId = Math.max(0, ...app.allPlayers.map(p => p.id)) + 1;
+            const newPlayer = { id: newId, name: name.trim(), enabled: true };
+            app.allPlayers.push(newPlayer);
+
+            try {
+                await savePlayersToStorage();
+                console.log('[App] Player added and saved:', newPlayer, 'Total players:', app.allPlayers.length);
+            } catch (e) {
+                console.error('[App] Error saving player:', e);
+            }
+
+            // Clear search to show all players including the newly added one
+            document.getElementById('player-search').value = '';
+            renderPlayersList();
+        }
+
+        /* Delete player and save to storage */
+        async function deleteSelectedPlayer(event, playerId) {
+            event.stopPropagation();
+            const index = app.allPlayers.findIndex(p => p.id === playerId);
+            if (index >= 0 && confirm("Delete this player?")) {
+                app.allPlayers.splice(index, 1);
+                app.selectedPlayers = app.selectedPlayers.filter(p => p.id !== playerId);
+                try {
+                    await savePlayersToStorage();
+                    console.log('[App] Player deleted and saved');
+                } catch (e) {
+                    console.error('[App] Error deleting player:', e);
+                }
+                renderPlayersList();
+            }
+        }
+
+        /* ===== UI: Add Player + Reset Button ===== */
+        function createPlayerControlBar() {
+            const controlBar = document.createElement('div');
+            controlBar.style.cssText = `
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+                align-items: flex-end;
+            `;
+
+            controlBar.innerHTML = `
+                <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem;" data-i18n="players.add_new_player">Add new player</label>
+                    <input id="new-player-name" type="text" placeholder="Player name..." data-i18n-placeholder="players.name_placeholder" style="padding:0.8rem; border:2px solid #e9ecef; border-radius:8px; font-size: 1rem; transition: all 0.2s ease;">
+                </div>
+                <button class="btn btn-primary" id="add-player-btn" style="margin-bottom: 0;" data-i18n="players.add_button">Add</button>
+                <button class="btn btn-warning" id="reset-db-btn" style="margin-bottom: 0;" data-i18n="players.reset_button">Reset Players</button>
+            `;
+
+            const playersList = document.getElementById('players-list');
+            playersList.insertAdjacentElement('afterend', controlBar);
+
+            // Apply translations to dynamically created elements
+            updateAllTranslations();
+
+            document.getElementById('add-player-btn').addEventListener('click', () => {
+                const nameInput = document.getElementById('new-player-name');
+                addPlayer(nameInput.value);
+                nameInput.value = '';
+                nameInput.focus();
+            });
+
+            // Allow Enter key to add player
+            document.getElementById('new-player-name').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('add-player-btn').click();
+                }
+            });
+
+            document.getElementById('reset-db-btn').addEventListener('click', resetPlayerDatabase);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize IndexedDB first
+            try {
+                await initDB();
+            } catch (e) {
+                console.warn('[App] IndexedDB init failed, using in-memory storage:', e);
+            }
+
+            // Load players after DB is ready
+            await loadPlayersFromStorage();
+
+            // Render the loaded players
+            renderPlayersList();
+
+            // Load and display tournament history on participants page
+            displayParticipantsPageHistory();
+
+            createPlayerControlBar();
+            updateAllTranslations();
+
+            // Initialize help button (show on participant selection page)
+            updateHelpButton('view-participants');
+
+            // Restore previous tournament state if exists
+            // (moved to end to ensure translations are loaded first)
+            setTimeout(() => {
+                restoreTournamentState();
+            }, 100);
+        });
+
+        // ===== UTILITY FUNCTIONS =====
+
+        /**
+         * Get translated string by key
+         */
+        function t(key) {
+            return translations[app.language][key] || key;
+        }
+
+        /**
+         * Change application language
+         */
+        function changeLanguage(lang) {
+            app.language = lang;
+            document.documentElement.lang = lang;
+
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update all translated elements
+            updateAllTranslations();
+
+            // Update navbar title in new language
+            const currentView = document.querySelector('.view.active');
+            if (currentView) {
+                const viewId = currentView.id;
+                updateNavbarTitle(viewId);
+            }
+        }
+
+        /**
+         * Update all text elements with translations
+         */
+        function updateAllTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                element.textContent = t(key);
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                element.placeholder = t(key);
+            });
+        }
+
+        /**
+         * Switch between views
+         */
+        function goToView(viewId) {
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo(0, 0);
+
+            // Hide instructions when switching views
+            hideInstructions();
+
+            // Show help button only on non-results pages
+            updateHelpButton(viewId);
+
+            // Update navbar title based on view
+            updateNavbarTitle(viewId);
+        }
+
+        /**
+         * Update navbar title based on current view
+         */
+        function updateNavbarTitle(viewId) {
+            const navbarTitle = document.getElementById('navbar-title');
+            const titles = {
+                'view-participants': 'players.player_management',
+                'view-config': 'tournament.tournament_setup',
+                'view-scoring': 'scoring.enter_scores',
+                'view-results': 'results.final_results'
+            };
+
+            if (titles[viewId]) {
+                const titleText = t(titles[viewId]);
+                navbarTitle.textContent = titleText;
+            }
+        }
+
+        /**
+         * Toggle instructions visibility
+         */
+        function toggleInstructions() {
+            const helpBtn = document.getElementById('help-toggle-btn');
+            const currentView = document.querySelector('.view.active');
+            if (!currentView) return;
+
+            const instructionsPanel = currentView.querySelector('.instructions-panel');
+            if (!instructionsPanel) return;
+
+            instructionsPanel.classList.toggle('active');
+            helpBtn.classList.toggle('active');
+        }
+
+        /**
+         * Show instructions
+         */
+        function showInstructions() {
+            const currentView = document.querySelector('.view.active');
+            if (!currentView) return;
+
+            const instructionsPanel = currentView.querySelector('.instructions-panel');
+            if (!instructionsPanel) return;
+
+            instructionsPanel.classList.add('active');
+            document.getElementById('help-toggle-btn').classList.add('active');
+        }
+
+        /**
+         * Hide instructions
+         */
+        function hideInstructions() {
+            const instructionsPanels = document.querySelectorAll('.instructions-panel');
+            instructionsPanels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById('help-toggle-btn').classList.remove('active');
+        }
+
+        /**
+         * Update help button visibility based on current view
+         */
+        function updateHelpButton(viewId) {
+            const helpBtn = document.getElementById('help-toggle-btn');
+            // Hide help button on results view
+            if (viewId === 'view-results') {
+                helpBtn.style.display = 'none';
+            } else {
+                helpBtn.style.display = 'block';
+            }
+        }
+
+        // ===== VIEW 1: PARTICIPANT SELECTION =====
+
+        /**
+         * Render players list UI
+         */
+        function renderPlayersList() {
+            const container = document.getElementById('players-list');
+            container.innerHTML = '';
+
+            app.allPlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                if (app.selectedPlayers.some(p => p.id === player.id)) {
+                    card.classList.add('selected');
+                }
+
+                card.innerHTML = `
+                    <div class="player-checkbox"></div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-id">ID: ${player.id}</div>
+                    </div>
+                    <button class="player-delete-btn" title="Delete player" onclick="event.stopPropagation(); deleteSelectedPlayer(event, ${player.id})">✕</button>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    togglePlayerSelection(player);
+                });
+                container.appendChild(card);
+            });
+        }
+
+        /**
+         * Toggle player selection
+         */
+        function togglePlayerSelection(player) {
+            const index = app.selectedPlayers.findIndex(p => p.id === player.id);
+            if (index >= 0) {
+                app.selectedPlayers.splice(index, 1);
+            } else {
+                app.selectedPlayers.push(player);
+            }
+            renderPlayersList();
+            saveTournamentState();
+        }
+
+        /**
+         * Filter players based on search input
+         */
+        function filterPlayers() {
+            const searchTerm = document.getElementById('player-search').value.toLowerCase();
+            const visiblePlayers = app.allPlayers.filter(player =>
+                player.name.toLowerCase().includes(searchTerm)
+            );
+
+            const container = document.getElementById('players-list');
+            container.innerHTML = '';
+
+            visiblePlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                if (app.selectedPlayers.some(p => p.id === player.id)) {
+                    card.classList.add('selected');
+                }
+
+                card.innerHTML = `
+                    <div class="player-checkbox"></div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-id">ID: ${player.id}</div>
+                    </div>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    togglePlayerSelection(player);
+                });
+                container.appendChild(card);
+            });
+        }
+
+        /**
+         * Proceed to tournament configuration
+         */
+        function proceedToConfig() {
+            if (app.selectedPlayers.length === 0) {
+                alert(t('league.no_players_selected'));
+                return;
+            }
+            goToView('view-config');
+        }
+
+        // ===== VIEW 2: TOURNAMENT CONFIGURATION =====
+
+        /**
+         * Update total shots based on targets and bullets input
+         */
+        function updateTotalShots() {
+            const targetsInput = document.getElementById('targets-input');
+            const bulletsInput = document.getElementById('bullets-per-target');
+
+            const targets = Math.max(1, parseInt(targetsInput.value) || 20);
+            const bullets = Math.max(1, parseInt(bulletsInput.value) || 2);
+
+            app.tournamentConfig.targets = targets;
+            app.tournamentConfig.bulletsPerTarget = bullets;
+
+            const totalShots = targets * bullets;
+            app.tournamentConfig.totalShots = totalShots;
+
+            document.getElementById('total-shots-display').textContent = totalShots;
+            saveTournamentState();
+        }
+
+        /**
+         * Proceed to scoring
+         */
+        function proceedToScoring() {
+            // Initialize score tracking
+            app.selectedPlayers.forEach(player => {
+                app.scores[player.id] = {};
+                for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                    app.scores[player.id][i] = {};
+                    for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                        app.scores[player.id][i][j] = null;
+                    }
+                }
+            });
+
+            // Update scoring info
+            renderScoringCards();
+            goToView('view-scoring');
+        }
+
+        // ===== VIEW 3: SCORE ENTRY =====
+
+        /**
+         * Render scoring input cards for each player
+         */
+        function renderScoringCards() {
+            const container = document.getElementById('scores-container');
+            container.innerHTML = '';
+
+            app.selectedPlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'score-card';
+
+                let targetsHTML = '';
+                for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                    targetsHTML += `
+                        <div class="target">
+                            <label data-i18n="scoring.target">${t('scoring.target')} ${i}</label>
+                    `;
+                    for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                        targetsHTML += `
+                            <input type="number"
+                                   min="0"
+                                   max="10"
+                                   placeholder="S${j}"
+                                   id="score-${player.id}-${i}-${j}"
+                                   onchange="validateAndUpdateScore(${player.id}, ${i}, ${j})"
+                                   onkeyup="validateAndUpdateScore(${player.id}, ${i}, ${j})"
+                                   oninput="validateAndUpdateScore(${player.id}, ${i}, ${j})">
+                        `;
+                    }
+                    targetsHTML += '</div>';
+                }
+
+                card.innerHTML = `
+                    <div class="score-header">
+                        <div class="score-player-name">${player.name}</div>
+                    </div>
+                    <div class="targets-grid">
+                        ${targetsHTML}
+                    </div>
+                    <div class="score-summary">
+                        <div class="summary-item">
+                            <label data-i18n="results.total_shots">${t('results.total_shots')}</label>
+                            <div class="value" id="summary-score-${player.id}">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <label data-i18n="results.tens">${t('results.tens')}</label>
+                            <div class="value" id="summary-tens-${player.id}">0</div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        /**
+         * Update score and tens summary for a player
+         */
+        function updateScoreSummary(playerId) {
+            let totalScore = 0;
+            let tensCount = 0;
+
+            for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                    const input = document.getElementById(`score-${playerId}-${i}-${j}`);
+                    if (input && input.value !== '') {
+                        const value = parseInt(input.value);
+                        if (!isNaN(value)) {
+                            totalScore += value;
+                            if (value === 10) {
+                                tensCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            document.getElementById(`summary-score-${playerId}`).textContent = totalScore;
+            document.getElementById(`summary-tens-${playerId}`).textContent = tensCount;
+
+            // Store in app state
+            app.scores[playerId].totalScore = totalScore;
+            app.scores[playerId].tensCount = tensCount;
+
+            // Auto-save tournament state after score update
+            saveTournamentState();
+        }
+
+        /**
+         * Validate score input and prevent values over 10, apply yellow highlight for 10s
+         */
+        function validateAndUpdateScore(playerId, targetId, bulletId) {
+            const input = document.getElementById(`score-${playerId}-${targetId}-${bulletId}`);
+            if (!input) return;
+
+            let value = input.value;
+
+            // Allow empty values
+            if (value === '') {
+                input.classList.remove('value-ten');
+                updateScoreSummary(playerId);
+                return;
+            }
+
+            // Parse the value
+            let numValue = parseInt(value);
+
+            // If not a valid number, clear it
+            if (isNaN(numValue)) {
+                input.value = '';
+                input.classList.remove('value-ten');
+                updateScoreSummary(playerId);
+                return;
+            }
+
+            // Prevent values over 10
+            if (numValue > 10) {
+                input.value = '10';
+                numValue = 10;
+            }
+
+            // Prevent negative values
+            if (numValue < 0) {
+                input.value = '0';
+                numValue = 0;
+            }
+
+            // Apply yellow styling for 10s
+            if (numValue === 10) {
+                input.classList.add('value-ten');
+            } else {
+                input.classList.remove('value-ten');
+            }
+
+            // Update the summary
+            updateScoreSummary(playerId);
+        }
+
+        /**
+         * Clear all scores
+         */
+        function clearAllScores() {
+            if (confirm(t('messages.confirm_delete'))) {
+                document.querySelectorAll('.score-card input[type="number"]').forEach(input => {
+                    input.value = '';
+                });
+                app.selectedPlayers.forEach(player => {
+                    updateScoreSummary(player.id);
+                });
+            }
+        }
+
+        /**
+         * Proceed to results
+         */
+        function proceedToResults() {
+            // Calculate final results
+            const results = calculateResults();
+            displayResults(results);
+            saveTournamentToHistory();
+            goToView('view-results');
+        }
+
+        // ===== VIEW 4: RESULTS DISPLAY =====
+
+        /**
+         * Calculate final results from scores
+         */
+        function calculateResults() {
+            const results = app.selectedPlayers.map(player => ({
+                id: player.id,
+                name: player.name,
+                totalScore: app.scores[player.id].totalScore || 0,
+                tensCount: app.scores[player.id].tensCount || 0,
+                totalShots: app.tournamentConfig.totalShots
+            }));
+
+            // Sort by score (DESC), then by tens (DESC)
+            results.sort((a, b) => {
+                if (b.totalScore !== a.totalScore) {
+                    return b.totalScore - a.totalScore;
+                }
+                return b.tensCount - a.tensCount;
+            });
+
+            // Add position
+            results.forEach((result, index) => {
+                result.position = index + 1;
+            });
+
+            return results;
+        }
+
+        /**
+         * Display results in table format
+         */
+        function displayResults(results) {
+            const table = document.getElementById('results-table');
+
+            let html = `
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>${t('players.player')}</th>
+                        <th>${t('results.total_score')}</th>
+                        <th>${t('results.tens')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            results.forEach(result => {
+                const badgeClass = result.position === 1 ? 'gold' : result.position === 2 ? 'silver' : result.position === 3 ? 'bronze' : '';
+                html += `
+                    <tr>
+                        <td><span class="position-badge ${badgeClass}">${result.position}</span></td>
+                        <td><span class="player-score-name">${result.name}</span></td>
+                        <td>${result.totalScore}</td>
+                        <td>${result.tensCount}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+
+            // Store results for export
+            app.lastResults = results;
+        }
+
+        // ===== EXCEL EXPORT =====
+
+        /**
+         * Download results as Excel file
+         */
+        function downloadExcel() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    alert('Excel library not loaded yet. Please wait a moment and try again.');
+                    console.warn('[App] XLSX library not available');
+                    return;
+                }
+
+                if (!app.lastResults || app.lastResults.length === 0) {
+                    alert('No results to export. Please complete the tournament first.');
+                    return;
+                }
+
+                console.log('[App] Starting Excel export with', app.lastResults.length, 'results');
+
+                const wb = XLSX.utils.book_new();
+
+                // Use Slovenian translations for Excel export
+                const isSloven = app.language === 'sl';
+                const positionLabel = isSloven ? 'Mesto' : 'Position';
+                const playerLabel = isSloven ? 'Igralec' : 'Player';
+                const scoreLabel = isSloven ? 'Skupni rezultat' : 'Total Score';
+                const tensLabel = isSloven ? 'Desetke' : 'Tens';
+                const titleLabel = isSloven ? 'Rezultati Turnirja' : 'Tournament Results';
+                const dateLabel = isSloven ? 'Datum' : 'Date';
+                const configLabel = isSloven ? 'Nastavitev' : 'Configuration';
+                const targetsLabel = isSloven ? 'tarč' : 'targets';
+                const shotsLabel = isSloven ? 'strelov na tarčo' : 'shots per target';
+
+                const resultsData = app.lastResults.map(result => ({
+                    [positionLabel]: result.position,
+                    [playerLabel]: result.name,
+                    [scoreLabel]: result.totalScore,
+                    [tensLabel]: result.tensCount
+                }));
+
+                const infoData = [
+                    ['SDK Muta - Kalkulator Basic'],
+                    [titleLabel],
+                    [dateLabel + ': ' + new Date().toLocaleDateString()],
+                    [configLabel + ': ' + app.tournamentConfig.targets + ' ' + targetsLabel + ' × ' + app.tournamentConfig.bulletsPerTarget + ' ' + shotsLabel],
+                    [''],
+                    [positionLabel, playerLabel, scoreLabel, tensLabel],
+                    ...resultsData.map(r => [r[positionLabel], r[playerLabel], r[scoreLabel], r[tensLabel]])
+                ];
+
+                const wsInfo = XLSX.utils.aoa_to_sheet(infoData);
+
+                wsInfo['!cols'] = [
+                    { wch: 12 },
+                    { wch: 25 },
+                    { wch: 15 },
+                    { wch: 10 }
+                ];
+
+                XLSX.utils.book_append_sheet(wb, wsInfo, 'Results');
+
+                const filename = `tournament_results_${app.tournamentConfig.targets}targets_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+                console.log('[App] Exporting to file:', filename);
+                XLSX.writeFile(wb, filename);
+                console.log('[App] Export successful');
+            } catch (error) {
+                console.error('[App] Excel export error:', error);
+                alert('Error exporting to Excel: ' + error.message);
+            }
+        }
+
+        /**
+         * Save tournament to history (keep last 5)
+         */
+        function saveTournamentToHistory() {
+            if (!db) {
+                console.warn('[App] Database not initialized, cannot save history');
+                return;
+            }
+
+            // Create history entry with timestamp as key
+            const timestamp = new Date().getTime();
+            const entry = {
+                timestamp: timestamp,
+                date: new Date().toISOString(),
+                config: app.tournamentConfig,
+                results: app.lastResults,
+                winner: app.lastResults && app.lastResults.length > 0 ? app.lastResults[0] : null
+            };
+
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(HISTORY_STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(HISTORY_STORE_NAME);
+
+                // First, get all history entries to maintain last 5
+                const getAllRequest = store.getAll();
+
+                getAllRequest.onsuccess = () => {
+                    const allHistory = getAllRequest.result;
+                    // Sort by timestamp descending and keep only last 4 (so we add the new one as 5th)
+                    allHistory.sort((a, b) => b.timestamp - a.timestamp);
+                    const toDelete = allHistory.slice(4); // Keep only last 4, will add new one
+
+                    // Delete old entries
+                    toDelete.forEach(entry => {
+                        store.delete(entry.timestamp);
+                    });
+
+                    // Add new entry
+                    const addRequest = store.add(entry);
+
+                    addRequest.onsuccess = () => {
+                        console.log('[App] Tournament saved to IndexedDB history');
+                        resolve();
+                    };
+
+                    addRequest.onerror = () => {
+                        console.error('[App] Error adding to history:', addRequest.error);
+                        reject(addRequest.error);
+                    };
+                };
+
+                getAllRequest.onerror = () => {
+                    console.error('[App] Error reading history:', getAllRequest.error);
+                    reject(getAllRequest.error);
+                };
+            });
+        }
+
+        /**
+         * Load tournament history from IndexedDB
+         */
+        function loadHistoryFromStorage() {
+            if (!db) {
+                console.warn('[App] Database not initialized, cannot load history');
+                return Promise.resolve([]);
+            }
+
+            return new Promise((resolve) => {
+                const transaction = db.transaction(HISTORY_STORE_NAME, 'readonly');
+                const store = transaction.objectStore(HISTORY_STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    const history = request.result;
+                    // Sort by timestamp descending (most recent first)
+                    history.sort((a, b) => b.timestamp - a.timestamp);
+                    console.log('[App] Loaded history from IndexedDB:', history.length, 'entries');
+                    resolve(history);
+                };
+
+                request.onerror = () => {
+                    console.warn('[App] Error loading history from IndexedDB');
+                    resolve([]);
+                };
+            });
+        }
+
+        /**
+         * Display tournament history
+         */
+        function displayTournamentHistory() {
+            const historyEmpty = document.getElementById('history-empty');
+            const historyList = document.getElementById('history-list');
+
+            if (!historyList) {
+                console.warn('[App] History list element not found');
+                return;
+            }
+
+            historyList.innerHTML = '';
+
+            loadHistoryFromStorage().then(history => {
+                if (history.length === 0) {
+                    if (historyEmpty) {
+                        historyEmpty.style.display = 'block';
+                    }
+                    return;
+                }
+
+                if (historyEmpty) {
+                    historyEmpty.style.display = 'none';
+                }
+
+                history.forEach((tournament, index) => {
+                    const date = new Date(tournament.date);
+                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    const configStr = `${tournament.config.targets} ${t('results.targets')} × ${tournament.config.bulletsPerTarget} ${t('results.shots')}`;
+                    const topThree = tournament.results.slice(0, 3);
+
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    card.innerHTML = `
+                        <div class="history-card-date">${dateStr}</div>
+                        <div class="history-card-config">${configStr}</div>
+                        <div class="history-card-podium">
+                            ${topThree.map((player, idx) => {
+                                const medals = ['🥇', '🥈', '🥉'];
+                                return `
+                                    <div class="podium-entry">
+                                        <span class="medal">${medals[idx]}</span>
+                                        <span class="name">${player.name}</span>
+                                        <span class="score">${player.totalScore}pts</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="history-card-players">
+                            <strong>${tournament.results.length} ${t('results.players')}</strong>
+                        </div>
+                    `;
+
+                    // Add click handler to restore tournament
+                    card.addEventListener('click', () => {
+                        restoreTournamentFromHistory(tournament);
+                    });
+
+                    historyList.appendChild(card);
+                });
+            });
+        }
+
+        /**
+         * Restore a tournament from history and display results
+         */
+        function restoreTournamentFromHistory(tournament) {
+            // Restore tournament data
+            app.lastResults = tournament.results;
+            app.tournamentConfig = tournament.config;
+
+            // Display the results
+            displayResults(tournament.results);
+
+            // Navigate to results view
+            goToView('view-results');
+
+            console.log('[App] Restored tournament from history');
+        }
+
+        /**
+         * Display history on the participants page
+         */
+        function displayParticipantsPageHistory() {
+            const historyEmpty = document.getElementById('participants-history-empty');
+            const historyList = document.getElementById('participants-history-list');
+
+            if (!historyList) {
+                console.warn('[App] Participants history list element not found');
+                return;
+            }
+
+            historyList.innerHTML = '';
+
+            loadHistoryFromStorage().then(history => {
+                if (history.length === 0) {
+                    if (historyEmpty) {
+                        historyEmpty.style.display = 'block';
+                    }
+                    return;
+                }
+
+                if (historyEmpty) {
+                    historyEmpty.style.display = 'none';
+                }
+
+                history.forEach((tournament, index) => {
+                    const date = new Date(tournament.date);
+                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    const configStr = `${tournament.config.targets} ${t('results.targets')} × ${tournament.config.bulletsPerTarget} ${t('results.shots')}`;
+                    const topThree = tournament.results.slice(0, 3);
+
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    card.style.cursor = 'pointer';
+                    card.innerHTML = `
+                        <div class="history-card-date">${dateStr}</div>
+                        <div class="history-card-config">${configStr}</div>
+                        <div class="history-card-podium">
+                            ${topThree.map((player, idx) => {
+                                const medals = ['🥇', '🥈', '🥉'];
+                                return `
+                                    <div class="podium-entry">
+                                        <span class="medal">${medals[idx]}</span>
+                                        <span class="name">${player.name}</span>
+                                        <span class="score">${player.totalScore}pts</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="history-card-players">
+                            <strong>${tournament.results.length} ${t('results.players')}</strong>
+                        </div>
+                    `;
+
+                    // Add click handler to restore tournament
+                    card.addEventListener('click', () => {
+                        restoreTournamentFromHistory(tournament);
+                    });
+
+                    // Add hover effect
+                    card.addEventListener('mouseenter', () => {
+                        card.style.transform = 'translateY(-4px)';
+                        card.style.boxShadow = '0 8px 16px rgba(0, 123, 255, 0.3)';
+                    });
+
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'translateY(0)';
+                        card.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                    });
+
+                    historyList.appendChild(card);
+                });
+            });
+        }
+
+        /**
+         * Show tournament history view
+         */
+        function showTournamentHistory() {
+            displayTournamentHistory();
+            goToView('view-history');
+        }
+
+        /**
+         * Start new tournament
+         */
+        function startNewTournament() {
+            clearTournamentState();
+            document.getElementById('player-search').value = '';
+            loadPlayers();
+            // Reload history on participants page
+            displayParticipantsPageHistory();
+            goToView('view-participants');
+        }
+
+        // ===== SERVICE WORKER REGISTRATION =====
+        /**
+         * Register service worker for PWA functionality
+         */
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('[App] Service Worker registered successfully:', registration);
+
+                    // Check for updates periodically
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('[App] New Service Worker available, prompting user...');
+                                // Prompt user about update (optional)
+                                // You can add a notification here if desired
+                            }
+                        });
+                    });
+                }).catch(error => {
+                    console.log('[App] Service Worker registration failed:', error);
+                });
+            } else {
+                console.log('[App] Service Workers not supported');
+            }
+        }
+
+        // Register service worker for PWA functionality (no DOMContentLoaded needed)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', registerServiceWorker);
+        } else {
+            registerServiceWorker();
+        }
+
+        // ===== PWA INSTALL PROMPT =====
+        let deferredPrompt;
+        const installPromptElement = document.createElement('div');
+        installPromptElement.id = 'install-prompt';
+        installPromptElement.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            max-width: 320px;
+            z-index: 1000;
+            display: none;
+            font-family: inherit;
+        `;
+        installPromptElement.innerHTML = `
+            <div style="margin-bottom: 1rem;">
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">Install App</h3>
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">Add SDK Muta Kalkulator to your home screen for quick access!</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button id="install-btn" style="flex: 1; padding: 0.75rem; background: white; color: #007bff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                    Install
+                </button>
+                <button id="install-close-btn" style="flex: 1; padding: 0.75rem; background: rgba(255, 255, 255, 0.2); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                    Later
+                </button>
+            </div>
+        `;
+        document.body.appendChild(installPromptElement);
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('[PWA] Install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            // Auto-trigger the install prompt
+            setTimeout(() => {
+                installPromptElement.style.display = 'block';
+            }, 1000);
+        });
+
+        // Install button click handler
+        document.getElementById('install-btn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`[PWA] User response: ${outcome}`);
+                if (outcome === 'accepted') {
+                    console.log('[PWA] App installation accepted');
+                }
+                deferredPrompt = null;
+                installPromptElement.style.display = 'none';
+            }
+        });
+
+        // Close button click handler
+        document.getElementById('install-close-btn').addEventListener('click', () => {
+            installPromptElement.style.display = 'none';
+            deferredPrompt = null;
+        });
+
+        // Function to request fullscreen
+        function requestAppFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().then(() => {
+                    console.log('[PWA] Entered fullscreen mode');
+                }).catch(err => {
+                    console.log('[PWA] Fullscreen request failed:', err);
+                });
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                // Safari on iOS
+                document.documentElement.webkitRequestFullscreen();
+                console.log('[PWA] Entered fullscreen mode (webkit)');
+            }
+        }
+
+        // Hide prompt on app installed and request fullscreen
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed successfully');
+            installPromptElement.style.display = 'none';
+            deferredPrompt = null;
+
+            // Request fullscreen after installation
+            setTimeout(() => {
+                requestAppFullscreen();
+            }, 1000);
+        });
+
+        // Check if app is already running in standalone mode (already installed)
+        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+        if (isStandalone) {
+            console.log('[PWA] App is running in standalone mode');
+            installPromptElement.style.display = 'none';
+
+            // Request fullscreen on app launch if already standalone/installed
+            setTimeout(() => {
+                requestAppFullscreen();
+            }, 500);
+        }
+    </script>
+</body>
+</html>
