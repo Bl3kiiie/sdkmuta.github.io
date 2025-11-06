@@ -1343,7 +1343,10 @@
                 "pwa.install_title": "Install App",
                 "pwa.install_text": "Add SDK Muta Kalkulator to your home screen for quick access!",
                 "pwa.install_btn": "Install",
-                "pwa.install_later": "Later"
+                "pwa.install_later": "Later",
+                "excel.library_not_loaded": "Excel library not loaded yet. Please wait a moment and try again.",
+                "excel.no_results": "No results to export. Please complete the tournament first.",
+                "excel.export_error": "Error exporting to Excel:"
             },
             sl: {
                 "tournament.tournament": "Turneja",
@@ -1425,7 +1428,10 @@
                 "pwa.install_title": "Namestite aplikacijo",
                 "pwa.install_text": "Dodajte SDK Muta Kalkulator na domačo ploščo za hiter dostop!",
                 "pwa.install_btn": "Namestite",
-                "pwa.install_later": "Pozneje"
+                "pwa.install_later": "Pozneje",
+                "excel.library_not_loaded": "Excel knjižnica še ni naložena. Prosimo, počakajte trenutek in poskusite znova.",
+                "excel.no_results": "Ni rezultatov za izvoz. Prosimo, najprej zaključite turnir.",
+                "excel.export_error": "Napaka pri izvozu v Excel:"
             }
         };
 
@@ -1437,7 +1443,9 @@
             defaultPlayers: [],
             tournamentConfig: { targets: 20, bulletsPerTarget: 2, totalShots: 40 },
             scores: {},
-            lastResults: null
+            lastResults: null,
+            lastScores: null,
+            lastPlayers: null
         };
 
         /* ===== INDEXEDDB STORAGE HANDLERS ===== */
@@ -1623,6 +1631,8 @@
             app.selectedPlayers = [];
             app.scores = {};
             app.lastResults = null;
+            app.lastScores = null;
+            app.lastPlayers = null;
             console.log('[App] Tournament state cleared');
         }
 
@@ -2153,6 +2163,24 @@
                 `;
 
                 container.appendChild(card);
+
+                // Restore saved score values if they exist
+                if (app.scores[player.id]) {
+                    for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                        for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                            const input = document.getElementById(`score-${player.id}-${i}-${j}`);
+                            const savedScore = app.scores[player.id]?.[i]?.[j];
+                            if (input && savedScore !== null && savedScore !== undefined) {
+                                input.value = savedScore;
+                                if (savedScore === 10) {
+                                    input.classList.add('value-ten');
+                                }
+                            }
+                        }
+                    }
+                    // Update the summary display
+                    updateScoreSummary(player.id);
+                }
             });
         }
 
@@ -2201,6 +2229,10 @@
             // Allow empty values
             if (value === '') {
                 input.classList.remove('value-ten');
+                // Clear the score in app.scores
+                if (app.scores[playerId]?.[targetId]) {
+                    app.scores[playerId][targetId][bulletId] = null;
+                }
                 updateScoreSummary(playerId);
                 return;
             }
@@ -2235,6 +2267,15 @@
                 input.classList.remove('value-ten');
             }
 
+            // Save the score value to app.scores
+            if (!app.scores[playerId]) {
+                app.scores[playerId] = {};
+            }
+            if (!app.scores[playerId][targetId]) {
+                app.scores[playerId][targetId] = {};
+            }
+            app.scores[playerId][targetId][bulletId] = numValue;
+
             // Update the summary
             updateScoreSummary(playerId);
         }
@@ -2259,6 +2300,11 @@
         function proceedToResults() {
             // Calculate final results
             const results = calculateResults();
+
+            // Save scores and players for Excel export
+            app.lastScores = JSON.parse(JSON.stringify(app.scores)); // Deep copy
+            app.lastPlayers = JSON.parse(JSON.stringify(app.selectedPlayers)); // Deep copy
+
             displayResults(results);
             saveTournamentToHistory();
             goToView('view-results');
@@ -2339,13 +2385,13 @@
         function downloadExcel() {
             try {
                 if (typeof XLSX === 'undefined') {
-                    alert('Excel library not loaded yet. Please wait a moment and try again.');
+                    alert(t('excel.library_not_loaded'));
                     console.warn('[App] XLSX library not available');
                     return;
                 }
 
                 if (!app.lastResults || app.lastResults.length === 0) {
-                    alert('No results to export. Please complete the tournament first.');
+                    alert(t('excel.no_results'));
                     return;
                 }
 
@@ -2364,34 +2410,275 @@
                 const configLabel = isSloven ? 'Nastavitev' : 'Configuration';
                 const targetsLabel = isSloven ? 'tarč' : 'targets';
                 const shotsLabel = isSloven ? 'strelov na tarčo' : 'shots per target';
+                const targetLabel = isSloven ? 'Tarča' : 'Target';
+                const shotLabel = isSloven ? 'Strel' : 'Shot';
 
-                const resultsData = app.lastResults.map(result => ({
-                    [positionLabel]: result.position,
-                    [playerLabel]: result.name,
-                    [scoreLabel]: result.totalScore,
-                    [tensLabel]: result.tensCount
-                }));
+                // Build detailed scores data with targets and bullets
+                const detailedData = [];
 
-                const infoData = [
-                    ['SDK Muta - Kalkulator'],
-                    [titleLabel],
-                    [dateLabel + ': ' + new Date().toLocaleDateString()],
-                    [configLabel + ': ' + app.tournamentConfig.targets + ' ' + targetsLabel + ' × ' + app.tournamentConfig.bulletsPerTarget + ' ' + shotsLabel],
-                    [''],
-                    [positionLabel, playerLabel, scoreLabel, tensLabel],
-                    ...resultsData.map(r => [r[positionLabel], r[playerLabel], r[scoreLabel], r[tensLabel]])
+                // Add header rows
+                detailedData.push(['SDK Muta - Kalkulator']);
+                detailedData.push([titleLabel]);
+                detailedData.push([dateLabel + ': ' + new Date().toLocaleDateString()]);
+                detailedData.push([configLabel + ': ' + app.tournamentConfig.targets + ' ' + targetsLabel + ' × ' + app.tournamentConfig.bulletsPerTarget + ' ' + shotsLabel]);
+                detailedData.push([]);
+
+                // Build compact header rows - Row 1: Target labels
+                const headerRow1 = [positionLabel, playerLabel];
+                for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                    headerRow1.push(`${targetLabel} ${i}`);
+                    // Add empty cells for additional shots
+                    for (let j = 1; j < app.tournamentConfig.bulletsPerTarget; j++) {
+                        headerRow1.push('');
+                    }
+                }
+                headerRow1.push(scoreLabel, tensLabel);
+                detailedData.push(headerRow1);
+
+                // Row 2: Shot labels (S1, S2, S3, etc.)
+                const headerRow2 = ['', '']; // Empty for Position and Player columns
+                for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                    for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                        headerRow2.push(`${shotLabel}${j}`);
+                    }
+                }
+                headerRow2.push('', ''); // Empty for Total Score and Tens
+                detailedData.push(headerRow2);
+
+                // Use saved scores and players data for export
+                const scoresData = app.lastScores || app.scores;
+                const playersData = app.lastPlayers || app.selectedPlayers;
+
+                console.log('[App] Excel export - using scores:', scoresData);
+                console.log('[App] Excel export - using players:', playersData);
+
+                // Add player data rows
+                app.lastResults.forEach(result => {
+                    const player = playersData.find(p => p.name === result.name);
+                    if (!player) {
+                        console.warn('[App] Player not found for result:', result.name);
+                        return;
+                    }
+
+                    const row = [result.position, result.name];
+
+                    // Add all target/bullet scores
+                    for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                        for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
+                            const score = scoresData[player.id]?.[i]?.[j];
+                            row.push(score !== null && score !== undefined ? score : '');
+                        }
+                    }
+
+                    row.push(result.totalScore, result.tensCount);
+                    detailedData.push(row);
+                });
+
+                // Create worksheet
+                const ws = XLSX.utils.aoa_to_sheet(detailedData);
+
+                // Merge cells for target headers (row 5) - each target header spans multiple shot columns
+                const merges = [];
+                // Merge Position and Player cells across both header rows
+                merges.push({ s: { r: 5, c: 0 }, e: { r: 6, c: 0 } }); // Position
+                merges.push({ s: { r: 5, c: 1 }, e: { r: 6, c: 1 } }); // Player
+
+                // Merge each target header across its shot columns
+                let colIndex = 2; // Start after Position and Player
+                for (let i = 1; i <= app.tournamentConfig.targets; i++) {
+                    if (app.tournamentConfig.bulletsPerTarget > 1) {
+                        merges.push({
+                            s: { r: 5, c: colIndex },
+                            e: { r: 5, c: colIndex + app.tournamentConfig.bulletsPerTarget - 1 }
+                        });
+                    }
+                    colIndex += app.tournamentConfig.bulletsPerTarget;
+                }
+
+                // Merge Total Score and Tens headers
+                const totalScoreCol = 2 + app.tournamentConfig.targets * app.tournamentConfig.bulletsPerTarget;
+                merges.push({ s: { r: 5, c: totalScoreCol }, e: { r: 6, c: totalScoreCol } }); // Total Score
+                merges.push({ s: { r: 5, c: totalScoreCol + 1 }, e: { r: 6, c: totalScoreCol + 1 } }); // Tens
+
+                ws['!merges'] = merges;
+
+                // Set column widths - more compact
+                const cols = [
+                    { wch: 8 },   // Position
+                    { wch: 18 }   // Player
                 ];
+                for (let i = 0; i < app.tournamentConfig.targets * app.tournamentConfig.bulletsPerTarget; i++) {
+                    cols.push({ wch: 5 }); // Shot columns - compact
+                }
+                cols.push({ wch: 10 }); // Total Score
+                cols.push({ wch: 6 });  // Tens
+                ws['!cols'] = cols;
 
-                const wsInfo = XLSX.utils.aoa_to_sheet(infoData);
+                // Apply cell styling
+                const range = XLSX.utils.decode_range(ws['!ref']);
 
-                wsInfo['!cols'] = [
-                    { wch: 12 },
-                    { wch: 25 },
-                    { wch: 15 },
-                    { wch: 10 }
-                ];
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (!ws[cellAddress]) continue;
 
-                XLSX.utils.book_append_sheet(wb, wsInfo, 'Results');
+                        // Initialize cell style
+                        if (!ws[cellAddress].s) ws[cellAddress].s = {};
+
+                        // Header styling (rows 0-3)
+                        if (R <= 3) {
+                            ws[cellAddress].s = {
+                                font: { bold: true, sz: R === 0 ? 16 : 12, color: { rgb: "FFFFFF" } },
+                                fill: { fgColor: { rgb: "2E5090" } },
+                                alignment: { horizontal: "left", vertical: "center" }
+                            };
+                        }
+                        // Column headers row 1: Target labels (row 5)
+                        else if (R === 5) {
+                            ws[cellAddress].s = {
+                                font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+                                fill: { fgColor: { rgb: "4472C4" } },
+                                alignment: { horizontal: "center", vertical: "center" },
+                                border: {
+                                    top: { style: "medium", color: { rgb: "000000" } },
+                                    bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                    left: { style: "thin", color: { rgb: "000000" } },
+                                    right: { style: "thin", color: { rgb: "000000" } }
+                                }
+                            };
+                        }
+                        // Column headers row 2: Shot labels (row 6)
+                        else if (R === 6) {
+                            ws[cellAddress].s = {
+                                font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } },
+                                fill: { fgColor: { rgb: "5B8FD8" } },
+                                alignment: { horizontal: "center", vertical: "center" },
+                                border: {
+                                    top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                    bottom: { style: "medium", color: { rgb: "000000" } },
+                                    left: { style: "thin", color: { rgb: "000000" } },
+                                    right: { style: "thin", color: { rgb: "000000" } }
+                                }
+                            };
+                        }
+                        // Data rows
+                        else if (R > 6) {
+                            const cellValue = ws[cellAddress].v;
+                            let fillColor = "FFFFFF"; // Default white
+
+                            // Color code the score cells
+                            if (C >= 2 && C < 2 + app.tournamentConfig.targets * app.tournamentConfig.bulletsPerTarget) {
+                                // Score columns
+                                if (cellValue === 10) {
+                                    fillColor = "C6EFCE"; // Light green for 10
+                                    ws[cellAddress].s = {
+                                        font: { bold: true, color: { rgb: "006100" } },
+                                        fill: { fgColor: { rgb: fillColor } },
+                                        alignment: { horizontal: "center", vertical: "center" },
+                                        border: {
+                                            top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                        }
+                                    };
+                                } else if (cellValue >= 9) {
+                                    fillColor = "D4EDDA"; // Light blue-green for 9
+                                    ws[cellAddress].s = {
+                                        font: { color: { rgb: "155724" } },
+                                        fill: { fgColor: { rgb: fillColor } },
+                                        alignment: { horizontal: "center", vertical: "center" },
+                                        border: {
+                                            top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                        }
+                                    };
+                                } else if (cellValue >= 8) {
+                                    fillColor = "FFF3CD"; // Light yellow for 8
+                                    ws[cellAddress].s = {
+                                        fill: { fgColor: { rgb: fillColor } },
+                                        alignment: { horizontal: "center", vertical: "center" },
+                                        border: {
+                                            top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                        }
+                                    };
+                                } else if (cellValue >= 0) {
+                                    fillColor = "F8D7DA"; // Light red for < 8
+                                    ws[cellAddress].s = {
+                                        fill: { fgColor: { rgb: fillColor } },
+                                        alignment: { horizontal: "center", vertical: "center" },
+                                        border: {
+                                            top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                        }
+                                    };
+                                } else {
+                                    // Empty cells
+                                    ws[cellAddress].s = {
+                                        fill: { fgColor: { rgb: "F5F5F5" } },
+                                        alignment: { horizontal: "center", vertical: "center" },
+                                        border: {
+                                            top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                            right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                        }
+                                    };
+                                }
+                            }
+                            // Total score column
+                            else if (C === 2 + app.tournamentConfig.targets * app.tournamentConfig.bulletsPerTarget) {
+                                ws[cellAddress].s = {
+                                    font: { bold: true, sz: 11 },
+                                    fill: { fgColor: { rgb: "E7E6E6" } },
+                                    alignment: { horizontal: "center", vertical: "center" },
+                                    border: {
+                                        top: { style: "thin", color: { rgb: "000000" } },
+                                        bottom: { style: "thin", color: { rgb: "000000" } },
+                                        left: { style: "medium", color: { rgb: "000000" } },
+                                        right: { style: "thin", color: { rgb: "000000" } }
+                                    }
+                                };
+                            }
+                            // Tens column
+                            else if (C === 3 + app.tournamentConfig.targets * app.tournamentConfig.bulletsPerTarget) {
+                                ws[cellAddress].s = {
+                                    font: { bold: true, sz: 11 },
+                                    fill: { fgColor: { rgb: "E7E6E6" } },
+                                    alignment: { horizontal: "center", vertical: "center" },
+                                    border: {
+                                        top: { style: "thin", color: { rgb: "000000" } },
+                                        bottom: { style: "thin", color: { rgb: "000000" } },
+                                        left: { style: "thin", color: { rgb: "000000" } },
+                                        right: { style: "thin", color: { rgb: "000000" } }
+                                    }
+                                };
+                            }
+                            // Position and Player columns
+                            else {
+                                ws[cellAddress].s = {
+                                    font: { bold: C === 0 },
+                                    alignment: { horizontal: C === 0 ? "center" : "left", vertical: "center" },
+                                    border: {
+                                        top: { style: "thin", color: { rgb: "D0D0D0" } },
+                                        bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+                                        left: { style: "thin", color: { rgb: "D0D0D0" } },
+                                        right: { style: "thin", color: { rgb: "D0D0D0" } }
+                                    }
+                                };
+                            }
+                        }
+                    }
+                }
+
+                XLSX.utils.book_append_sheet(wb, ws, 'Detailed Results');
 
                 const filename = `tournament_results_${app.tournamentConfig.targets}targets_${new Date().toISOString().split('T')[0]}.xlsx`;
 
@@ -2400,7 +2687,7 @@
                 console.log('[App] Export successful');
             } catch (error) {
                 console.error('[App] Excel export error:', error);
-                alert('Error exporting to Excel: ' + error.message);
+                alert(t('excel.export_error') + ' ' + error.message);
             }
         }
 
@@ -2420,6 +2707,8 @@
                 date: new Date().toISOString(),
                 config: app.tournamentConfig,
                 results: app.lastResults,
+                scores: app.scores, // Save all detailed scores
+                players: app.selectedPlayers, // Save player info for reference
                 winner: app.lastResults && app.lastResults.length > 0 ? app.lastResults[0] : null
             };
 
