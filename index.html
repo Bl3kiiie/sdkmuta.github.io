@@ -75,17 +75,6 @@
             object-fit: contain;
         }
 
-        .nav-version {
-            background: #6c757d;
-            color: white;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 3px;
-            white-space: nowrap;
-            margin-left: 4px;
-        }
-
         .nav-title {
             font-size: 1.4rem;
             font-weight: bold;
@@ -1064,7 +1053,6 @@
             <div class="nav-logo-title">
                 <div class="nav-logo">
                     <img src="logo-header.svg" alt="SDK Muta Logo" style="width: 48px; height: 48px;">
-                    <span class="nav-version">v1.0.0</span>
                 </div>
                 <h1 class="nav-title" id="navbar-title">SDK Muta - Kalkulator</h1>
             </div>
@@ -1088,7 +1076,8 @@
                     <li><span data-i18n="instructions.select">Select Players: Click on player cards to select/deselect them</span></li>
                     <li><span data-i18n="instructions.add_new">Add New: Enter a name and click "Add" to add new players</span></li>
                     <li><span data-i18n="instructions.delete">Delete: Click the ✕ button on a player card to remove them</span></li>
-                    <li><span data-i18n="instructions.continue">Continue: Once you've selected players, click "Next"</span></li>
+                    <li><span data-i18n="instructions.history">History: View your last 5 tournaments in the Tournament History section below</span></li>
+                    <li><span data-i18n="instructions.continue">Continue: Once you've selected players, click "Start Match"</span></li>
                 </ol>
             </div>
 
@@ -1206,7 +1195,8 @@
                     <li><span data-i18n="instructions.auto_cap">Auto-Cap: Values over 10 automatically become 10</span></li>
                     <li><span data-i18n="instructions.real_time">Real-Time Updates: Totals update as you type</span></li>
                     <li><span data-i18n="instructions.auto_save">Auto-Save: All data saves automatically</span></li>
-                    <li><span data-i18n="instructions.finish">Finish: Click "Finish Tournament" when all scores are entered</span></li>
+                    <li><span data-i18n="instructions.finish">Finish: Click "Finish Match" when all scores are entered</span></li>
+                    <li><span data-i18n="instructions.excel_export">Excel Export: After finishing, download a detailed Excel report with all individual shot scores</span></li>
                 </ol>
             </div>
 
@@ -1324,7 +1314,8 @@
                 "instructions.add_new": "Add New: Enter a name and click \"Add\" to add new players",
                 "instructions.delete": "Delete: Click the ✕ button on a player card to remove them",
                 "instructions.select_all": "Select All: Click the ✓ button to select/deselect all visible players",
-                "instructions.continue": "Continue: Once you've selected players, click \"Next\"",
+                "instructions.history": "History: View your last 5 tournaments in the Tournament History section below",
+                "instructions.continue": "Continue: Once you've selected players, click \"Start Match\"",
                 "instructions.config": "Instructions for Tournament Configuration",
                 "instructions.targets": "Number of Targets: How many targets will each player shoot at?",
                 "instructions.bullets": "Bullets per Target: How many bullets/shots per target?",
@@ -1340,6 +1331,7 @@
                 "instructions.real_time": "Real-Time Updates: Totals update as you type",
                 "instructions.auto_save": "Auto-Save: All data saves automatically",
                 "instructions.finish": "Finish: Click \"Finish Match\" when all scores are entered",
+                "instructions.excel_export": "Excel Export: After finishing, download a detailed Excel report with all individual shot scores",
                 "pwa.install_title": "Install App",
                 "pwa.install_text": "Add SDK Muta Kalkulator to your home screen for quick access!",
                 "pwa.install_btn": "Install",
@@ -1409,7 +1401,8 @@
                 "instructions.add_new": "Dodaj novega: Vnesite ime in kliknite \"Dodaj\" za dodajanje novih igralcev",
                 "instructions.delete": "Izbriši: Kliknite gumb ✕ na kartici igralca za njihovo odstranitev",
                 "instructions.select_all": "Izberi vse: Kliknite gumb ✓ za izbiro/odselekcioniraj vse vidne igralce",
-                "instructions.continue": "Nadaljuj: Ko ste izbrali igralce, kliknite \"Naprej\"",
+                "instructions.history": "Zgodovina: Oglejte si vaših zadnjih 5 turnirjev v razdelku Zgodovina Turnirjev spodaj",
+                "instructions.continue": "Nadaljuj: Ko ste izbrali igralce, kliknite \"Začni tekmo\"",
                 "instructions.config": "Navodila za konfiguracija turnirja",
                 "instructions.targets": "Število tarč: Koliko tarč bo vsak igralec streljal?",
                 "instructions.bullets": "Naboji na tarčo: Koliko nabojev/strelov na tarčo?",
@@ -1425,6 +1418,7 @@
                 "instructions.real_time": "Posodabljanje v realnem času: Skupni znesek se posodablja med pisanjem",
                 "instructions.auto_save": "Samodejno shranjevanje: Vsi podatki se samodejno shranijo",
                 "instructions.finish": "Zaključi: Kliknite \"Zaključi Tekmo\" ko so vsi rezultati vneseni",
+                "instructions.excel_export": "Excel izvoz: Po zaključku prenesite podrobno Excel poročilo z vsemi rezultati posameznih strelov",
                 "pwa.install_title": "Namestite aplikacijo",
                 "pwa.install_text": "Dodajte SDK Muta Kalkulator na domačo ploščo za hiter dostop!",
                 "pwa.install_btn": "Namestite",
@@ -1729,6 +1723,21 @@
                 console.warn('[App] IndexedDB init failed, using in-memory storage:', e);
             }
 
+            // Load language preference
+            const savedLanguage = localStorage.getItem('app_language');
+            if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'sl')) {
+                app.language = savedLanguage;
+                document.documentElement.lang = savedLanguage;
+
+                // Update language button active state
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent.toLowerCase() === savedLanguage) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
             // Load players after DB is ready
             await loadPlayersFromStorage();
 
@@ -1766,6 +1775,9 @@
         function changeLanguage(lang) {
             app.language = lang;
             document.documentElement.lang = lang;
+
+            // Save language preference to localStorage
+            localStorage.setItem('app_language', lang);
 
             // Update language buttons
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -2466,7 +2478,7 @@
                     for (let i = 1; i <= app.tournamentConfig.targets; i++) {
                         for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
                             const score = scoresData[player.id]?.[i]?.[j];
-                            row.push(score !== null && score !== undefined ? score : '');
+                            row.push(score !== null && score !== undefined ? score : 0);
                         }
                     }
 
