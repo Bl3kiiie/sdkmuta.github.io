@@ -1063,7 +1063,7 @@
         <div class="nav-container">
             <div class="nav-logo-title">
                 <div class="nav-logo">
-                    <img src="logo.svg" alt="SDK Muta Logo" style="width: 48px; height: 48px;">
+                    <img src="logo-header.svg" alt="SDK Muta Logo" style="width: 48px; height: 48px;">
                     <span class="nav-version">v1.0.0</span>
                 </div>
                 <h1 class="nav-title" id="navbar-title">SDK Muta - Kalkulator</h1>
@@ -1107,6 +1107,13 @@
             </div>
             <div class="players-list" id="players-list"></div>
 
+            <!-- Start Match Button -->
+            <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+                <button class="btn btn-danger" onclick="proceedToConfig()" style="background-color: #dc3545; border-color: #dc3545; color: #ffffff; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 600;">
+                    <span data-i18n="navigation.start_match">Start Match</span>
+                </button>
+            </div>
+
             <!-- Tournament History Section -->
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef;">
                 <button class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
@@ -1122,13 +1129,6 @@
                         <div class="history-list" id="participants-history-list"></div>
                     </div>
                 </div>
-            </div>
-
-            <div class="view-actions">
-                <div></div>
-                <button class="btn btn-primary" onclick="proceedToConfig()">
-                    <span data-i18n="navigation.next">Next →</span>
-                </button>
             </div>
         </div>
 
@@ -1182,11 +1182,12 @@
             </div>
 
             <div class="view-actions">
-                <button class="btn btn-secondary" onclick="goToView('view-participants')">
-                    <span data-i18n="navigation.back">← Back</span>
+                <button class="btn btn-danger" onclick="proceedToScoring()" style="background-color: #dc3545; border-color: #dc3545; color: #ffffff;">
+                    <span data-i18n="navigation.next">Next
+                    </span>
                 </button>
-                <button class="btn btn-primary" onclick="proceedToScoring()">
-                    <span data-i18n="navigation.next">Next →</span>
+                <button class="btn btn-secondary" onclick="goToView('view-participants')">
+                    <span data-i18n="navigation.back">Back</span>
                 </button>
             </div>
         </div>
@@ -1212,17 +1213,12 @@
             <div class="scores-container" id="scores-container"></div>
 
             <div class="view-actions">
-                <button class="btn btn-secondary" onclick="goToView('view-config')">
-                    <span data-i18n="navigation.back">← Back</span>
+                <button class="btn btn-danger" onclick="proceedToResults()" style="background-color: #dc3545; border-color: #dc3545; color: #ffffff;">
+                    <span data-i18n="scoring.finish_tournament">Finish Match</span>
                 </button>
-                <div style="display: flex; gap: 1rem;">
-                    <button class="btn btn-warning" onclick="clearAllScores()">
-                        <span data-i18n="scoring.clear_all">Clear All</span>
-                    </button>
-                    <button class="btn btn-primary" onclick="proceedToResults()">
-                        <span data-i18n="scoring.finish_tournament">Finish Tournament</span>
-                    </button>
-                </div>
+                <button class="btn btn-secondary" onclick="goToView('view-config')">
+                    <span data-i18n="navigation.back">Back</span>
+                </button>
             </div>
         </div>
 
@@ -1239,7 +1235,7 @@
                     📥 <span data-i18n="results.export_excel">Download Excel</span>
                 </button>
                 <button class="btn btn-secondary" onclick="startNewTournament()">
-                    <span data-i18n="navigation.back">← Back to Start</span>
+                    <span data-i18n="navigation.back">Back to Start</span>
                 </button>
             </div>
         </div>
@@ -1258,7 +1254,7 @@
             <div class="view-actions">
                 <div></div>
                 <button class="btn btn-secondary" onclick="startNewTournament()">
-                    <span data-i18n="navigation.back">← Back to Start</span>
+                    <span data-i18n="navigation.back">Back to Start</span>
                 </button>
             </div>
         </div>
@@ -1276,8 +1272,9 @@
                 "league.no_players_selected": "Please select at least one player!",
                 "general.next": "Next",
                 "general.back": "Back",
-                "navigation.back": "← Back",
-                "navigation.next": "Next →",
+                "navigation.back": "Back",
+                "navigation.next": "Next",
+                "navigation.start_match": "Start Match",
                 "players.select_all": "✓ All",
                 "players.deselect_all": "✕ None",
                 "general.save": "Download Excel",
@@ -1307,10 +1304,11 @@
                 "results.targets": "targets",
                 "results.shots": "shots",
                 "results.points": "points",
+                "results.pts": "pts",
                 "results.players": "players",
                 "scoring.enter_scores": "Enter Scores",
                 "scoring.clear_all": "Clear All",
-                "scoring.finish_tournament": "Finish Tournament",
+                "scoring.finish_tournament": "Finish Match",
                 "scoring.target": "Target",
                 "players.include_participant": "Include a participant",
                 "players.add_new_player": "Add new player",
@@ -1341,7 +1339,7 @@
                 "instructions.auto_cap": "Auto-Cap: Values over 10 automatically become 10",
                 "instructions.real_time": "Real-Time Updates: Totals update as you type",
                 "instructions.auto_save": "Auto-Save: All data saves automatically",
-                "instructions.finish": "Finish: Click \"Finish Tournament\" when all scores are entered",
+                "instructions.finish": "Finish: Click \"Finish Match\" when all scores are entered",
                 "pwa.install_title": "Install App",
                 "pwa.install_text": "Add SDK Muta Kalkulator to your home screen for quick access!",
                 "pwa.install_btn": "Install",
@@ -1356,8 +1354,9 @@
                 "league.no_players_selected": "Prosimo, izberite vsaj enega igralca!",
                 "general.next": "Naprej",
                 "general.back": "Nazaj",
-                "navigation.back": "← Nazaj",
-                "navigation.next": "Naprej →",
+                "navigation.back": "Nazaj",
+                "navigation.next": "Naprej",
+                "navigation.start_match": "Začni tekmo",
                 "players.select_all": "✓ Vse",
                 "players.deselect_all": "✕ Nobenih",
                 "general.save": "Preuzmite Excel",
@@ -1387,10 +1386,11 @@
                 "results.targets": "tarč",
                 "results.shots": "strelov",
                 "results.points": "točk",
+                "results.pts": "točk",
                 "results.players": "igralci",
                 "scoring.enter_scores": "Vnos rezultatov",
                 "scoring.clear_all": "Počisti vse",
-                "scoring.finish_tournament": "Zaključi turnir",
+                "scoring.finish_tournament": "Zaključi tekmo",
                 "scoring.target": "Tarča",
                 "players.include_participant": "Vključi udeleženca",
                 "players.add_new_player": "Dodaj novega igralca",
@@ -1421,7 +1421,7 @@
                 "instructions.auto_cap": "Samodejni zgornji limit: Vrednosti nad 10 postanejo 10",
                 "instructions.real_time": "Posodabljanje v realnem času: Skupni znesek se posodablja med pisanjem",
                 "instructions.auto_save": "Samodejno shranjevanje: Vsi podatki se samodejno shranijo",
-                "instructions.finish": "Zaključi: Kliknite \"Zaključi Turnir\" ko so vsi rezultati vneseni",
+                "instructions.finish": "Zaključi: Kliknite \"Zaključi Tekmo\" ko so vsi rezultati vneseni",
                 "pwa.install_title": "Namestite aplikacijo",
                 "pwa.install_text": "Dodajte SDK Muta Kalkulator na domačo ploščo za hiter dostop!",
                 "pwa.install_btn": "Namestite",
@@ -2565,7 +2565,7 @@
                                     <div class="podium-entry">
                                         <span class="medal">${medals[idx]}</span>
                                         <span class="name">${player.name}</span>
-                                        <span class="score">${player.totalScore}pts</span>
+                                        <span class="score">${player.totalScore}${t('results.pts')}</span>
                                     </div>
                                 `;
                             }).join('')}
@@ -2648,7 +2648,7 @@
                                     <div class="podium-entry">
                                         <span class="medal">${medals[idx]}</span>
                                         <span class="name">${player.name}</span>
-                                        <span class="score">${player.totalScore}pts</span>
+                                        <span class="score">${player.totalScore}${t('results.pts')}</span>
                                     </div>
                                 `;
                             }).join('')}
