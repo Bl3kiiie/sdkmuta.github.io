@@ -225,6 +225,9 @@ async function finishTournament() {
         // Display results
         displayResults(results);
 
+        // Refresh history display for when user returns to participants page
+        await displayParticipantsPageHistory();
+
         // Move to results view
         goToView('view-results');
     } catch (error) {
