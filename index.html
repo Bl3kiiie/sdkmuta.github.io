@@ -887,6 +887,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
+            align-items: stretch;
         }
 
         .history-card {
@@ -896,6 +897,9 @@
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
         }
 
         .history-card-header {
@@ -964,6 +968,7 @@
             border-radius: 6px;
             min-height: 120px;
             justify-content: center;
+            flex: 1;
         }
 
         .podium-entry {
@@ -1006,6 +1011,7 @@
             color: #666;
             font-weight: 600;
             border-top: 1px solid #e9ecef;
+            margin-top: auto;
         }
 
         .history-card-players::before {
