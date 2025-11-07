@@ -17,6 +17,7 @@ function t(key) {
  * Update all translations in the DOM
  */
 function updateAllTranslations() {
+    // Update elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         const translation = t(key);
@@ -28,6 +29,13 @@ function updateAllTranslations() {
         } else {
             element.textContent = translation;
         }
+    });
+
+    // Update elements with data-i18n-placeholder attribute (for inputs that only have placeholder translation)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        const translation = t(key);
+        element.placeholder = translation;
     });
 }
 

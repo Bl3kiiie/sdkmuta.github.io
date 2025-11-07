@@ -29,7 +29,6 @@ function renderPlayersList() {
             <div class="player-checkbox"></div>
             <div class="player-info">
                 <div class="player-name">${player.name}</div>
-                <div class="player-id">ID: ${player.id}</div>
             </div>
             <button class="player-delete-btn" title="Delete player" onclick="event.stopPropagation(); deleteSelectedPlayer(event, ${player.id})">✕</button>
         `;
