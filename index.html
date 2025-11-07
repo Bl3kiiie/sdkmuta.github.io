@@ -1129,6 +1129,92 @@
             transform: translateY(-1px);
         }
 
+        /* ===== CONFIRMATION MODAL ===== */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+        }
+
+        .confirmation-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .confirmation-modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+        }
+
+        .confirmation-modal-message {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .confirmation-modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .confirmation-modal-buttons button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .confirmation-modal-buttons .btn-cancel {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .confirmation-modal-buttons .btn-cancel:hover {
+            background-color: #dee2e6;
+        }
+
+        .confirmation-modal-buttons .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .confirmation-modal-buttons .btn-delete:hover {
+            background-color: #c82333;
+        }
+
         /* ===== COLLAPSIBLE SECTIONS ===== */
         .collapsible-header {
             background: none;
@@ -1437,6 +1523,18 @@
     </style>
 </head>
 <body>
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="confirmation-modal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-title" id="confirmation-modal-title">Confirm Deletion</div>
+            <div class="confirmation-modal-message" id="confirmation-modal-message">Are you sure you want to delete this item?</div>
+            <div class="confirmation-modal-buttons">
+                <button class="btn-cancel" onclick="closeConfirmationModal()" data-i18n="confirmation.cancel">Cancel</button>
+                <button class="btn-delete" onclick="confirmAction()" data-i18n="confirmation.delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -1688,7 +1786,7 @@
                 "players.player_management": "Player Management",
                 "players.player": "Player",
                 "players.name_placeholder": "Player name...",
-                "league.search_players_placeholder": "Search players...",
+                "league.search_players_placeholder": "Search players / add players...",
                 "league.no_players_selected": "Please select at least one player!",
                 "general.next": "Next",
                 "general.back": "Back",
@@ -1746,6 +1844,12 @@
                 "messages.confirm_delete": "Are you sure you want to clear all scores?",
                 "messages.email_sent": "Results sent successfully!",
                 "messages.email_error": "Error sending email. Please try again.",
+                "confirmation.delete_player_title": "Delete Player",
+                "confirmation.delete_player_message": "Are you sure you want to delete {name}?",
+                "confirmation.delete_tournament_title": "Delete Tournament",
+                "confirmation.delete_tournament_message": "Are you sure you want to delete this tournament from history?",
+                "confirmation.cancel": "Cancel",
+                "confirmation.delete": "Delete",
                 "instructions.title": "Instructions",
                 "instructions.participants": "Instructions for Player Selection",
                 "instructions.search": "Search or Add: Type a player name to search existing players or add new ones",
@@ -1784,7 +1888,7 @@
                 "players.player_management": "Upravljanje igralcev",
                 "players.player": "Igralec",
                 "players.name_placeholder": "Ime igralca...",
-                "league.search_players_placeholder": "Iskanje igralcev...",
+                "league.search_players_placeholder": "Iskanje igralcev / dodaj igralce...",
                 "league.no_players_selected": "Prosimo, izberite vsaj enega igralca!",
                 "general.next": "Naprej",
                 "general.back": "Nazaj",
@@ -1842,6 +1946,12 @@
                 "messages.confirm_delete": "Ali ste prepričani, da želite izbrisati vse rezultate?",
                 "messages.email_sent": "Rezultati so bili uspešno poslani!",
                 "messages.email_error": "Napaka pri pošiljanju e-pošte. Prosimo, poskusite znova.",
+                "confirmation.delete_player_title": "Izbriši igralca",
+                "confirmation.delete_player_message": "Ali ste prepričani, da želite izbrisati {name}?",
+                "confirmation.delete_tournament_title": "Izbriši turnir",
+                "confirmation.delete_tournament_message": "Ali ste prepričani, da želite izbrisati ta turnir iz zgodovine?",
+                "confirmation.cancel": "Prekliči",
+                "confirmation.delete": "Izbriši",
                 "instructions.title": "Navodila",
                 "instructions.participants": "Navodila za izbiro igralcev",
                 "instructions.search": "Iskanje ali Dodaj: Vnesite ime igralca za iskanje obstoječih ali dodajanje novih",
@@ -2106,21 +2216,77 @@
             renderPlayersList();
         }
 
-        /* Delete player and save to storage */
-        async function deleteSelectedPlayer(event, playerId) {
-            event.stopPropagation();
-            const index = app.allPlayers.findIndex(p => p.id === playerId);
-            if (index >= 0 && confirm("Delete this player?")) {
-                app.allPlayers.splice(index, 1);
-                app.selectedPlayers = app.selectedPlayers.filter(p => p.id !== playerId);
-                try {
-                    await savePlayersToStorage();
-                    console.log('[App] Player deleted and saved');
-                } catch (e) {
-                    console.error('[App] Error deleting player:', e);
-                }
-                renderPlayersList();
+        /* ===== CONFIRMATION MODAL FUNCTIONS ===== */
+        let pendingAction = null;
+
+        function showConfirmationModal(title, message, action) {
+            document.getElementById('confirmation-modal-title').textContent = title;
+            document.getElementById('confirmation-modal-message').textContent = message;
+
+            // Update button translations
+            document.querySelector('.confirmation-modal-buttons .btn-cancel').textContent = t('confirmation.cancel');
+            document.querySelector('.confirmation-modal-buttons .btn-delete').textContent = t('confirmation.delete');
+
+            document.getElementById('confirmation-modal').classList.add('active');
+            pendingAction = action;
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmation-modal').classList.remove('active');
+            pendingAction = null;
+        }
+
+        function confirmAction() {
+            if (pendingAction) {
+                pendingAction();
             }
+            closeConfirmationModal();
+        }
+
+        // Close modal when clicking outside the content
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('confirmation-modal');
+            const content = document.querySelector('.confirmation-modal-content');
+            if (event.target === modal && modal.classList.contains('active')) {
+                closeConfirmationModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('confirmation-modal');
+                if (modal.classList.contains('active')) {
+                    closeConfirmationModal();
+                }
+            }
+        });
+
+        /* Delete player and save to storage */
+        function deleteSelectedPlayer(event, playerId) {
+            event.stopPropagation();
+            const player = app.allPlayers.find(p => p.id === playerId);
+            if (!player) return;
+
+            const playerName = player.name;
+            showConfirmationModal(
+                t('confirmation.delete_player_title'),
+                t('confirmation.delete_player_message').replace('{name}', playerName),
+                async function() {
+                    const index = app.allPlayers.findIndex(p => p.id === playerId);
+                    if (index >= 0) {
+                        app.allPlayers.splice(index, 1);
+                        app.selectedPlayers = app.selectedPlayers.filter(p => p.id !== playerId);
+                        try {
+                            await savePlayersToStorage();
+                            console.log('[App] Player deleted and saved');
+                        } catch (e) {
+                            console.error('[App] Error deleting player:', e);
+                        }
+                        renderPlayersList();
+                    }
+                }
+            );
         }
 
         /* ===== UI: Setup Add Player Button ===== */
@@ -3377,30 +3543,32 @@
          * Delete tournament from history by timestamp
          */
         function deleteHistoryItem(timestamp) {
-            if (!confirm('Delete this tournament from history?')) {
-                return;
-            }
+            showConfirmationModal(
+                t('confirmation.delete_tournament_title'),
+                t('confirmation.delete_tournament_message'),
+                function() {
+                    if (!db) {
+                        console.warn('[App] Database not initialized, cannot delete history');
+                        return;
+                    }
 
-            if (!db) {
-                console.warn('[App] Database not initialized, cannot delete history');
-                return;
-            }
+                    const transaction = db.transaction(HISTORY_STORE_NAME, 'readwrite');
+                    const store = transaction.objectStore(HISTORY_STORE_NAME);
+                    const deleteRequest = store.delete(timestamp);
 
-            const transaction = db.transaction(HISTORY_STORE_NAME, 'readwrite');
-            const store = transaction.objectStore(HISTORY_STORE_NAME);
-            const deleteRequest = store.delete(timestamp);
+                    deleteRequest.onsuccess = () => {
+                        console.log('[App] Tournament deleted from history:', timestamp);
+                        // Refresh the history display
+                        displayParticipantsPageHistory();
+                        displayTournamentHistory();
+                    };
 
-            deleteRequest.onsuccess = () => {
-                console.log('[App] Tournament deleted from history:', timestamp);
-                // Refresh the history display
-                displayParticipantsPageHistory();
-                displayTournamentHistory();
-            };
-
-            deleteRequest.onerror = () => {
-                console.error('[App] Error deleting from history:', deleteRequest.error);
-                alert('Error deleting tournament from history');
-            };
+                    deleteRequest.onerror = () => {
+                        console.error('[App] Error deleting from history:', deleteRequest.error);
+                        alert('Error deleting tournament from history');
+                    };
+                }
+            );
         }
 
         /**
