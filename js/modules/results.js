@@ -34,7 +34,15 @@ function displayResults(results) {
                        tournamentType === 'large-targets' ? '💪' : '🏆';
     const resultsTitle = header.querySelector('.results-title');
     if (resultsTitle) {
-        resultsTitle.textContent = `${titleEmoji} ${t('results.final_results')}`;
+        // Only update the emoji, let the data-i18n span handle the text
+        const emojiSpan = document.createElement('span');
+        emojiSpan.textContent = titleEmoji + ' ';
+        const textSpan = resultsTitle.querySelector('[data-i18n="results.final_results"]');
+        if (textSpan) {
+            resultsTitle.innerHTML = '';
+            resultsTitle.appendChild(emojiSpan);
+            resultsTitle.appendChild(textSpan);
+        }
     }
 
     const highestScore = results.length > 0 ? results[0].totalScore : 0;
