@@ -574,11 +574,108 @@
         }
 
         /* ===== RESULTS ===== */
-        .results-table-container {
-            background: white;
-            border-radius: 8px;
+        .results-header {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            text-align: center;
+            flex-shrink: 0;
+            color: white;
+            position: relative;
             overflow: hidden;
-            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        }
+
+        /* Dynamic header colors based on tournament type */
+        .results-header.tournament-4_targets {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
+
+        .results-header.tournament-20_targets {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        }
+
+        .results-header.tournament-40_targets {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .results-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .results-header * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .results-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: rgb(255, 255, 255);
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 20px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-meta {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: block;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .header-logo {
+            height: 70px;
+            max-width: 180px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            filter: brightness(1.2) contrast(1.1);
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .results-table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             margin-bottom: 2rem;
         }
 
@@ -586,83 +683,111 @@
         .results-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 1rem;
-            border-radius: 8px;
-            overflow: hidden;
         }
 
-        .results-table thead {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
+        .results-table th,
+        .results-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f4;
+            border-right: 1px solid #f1f3f4;
         }
 
         .results-table th {
-            padding: 1.2rem 1rem;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            text-transform: uppercase;
-        }
-
-        .results-table th:first-child {
-            text-align: center;
-            width: 80px;
-        }
-
-        .results-table th:nth-child(2) {
-            text-align: left;
-            flex-grow: 1;
-        }
-
-        .results-table th:nth-child(3),
-        .results-table th:nth-child(4) {
-            width: 110px;
-        }
-
-        .results-table td {
-            padding: 1.2rem 1rem;
-            border-bottom: 1px solid #e9ecef;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .results-table td:nth-child(2) {
-            text-align: left;
-            color: #2c3e50;
+            background: #f8f9fa;
             font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .results-table td:first-child {
+        .results-table th.rank-col {
             width: 80px;
         }
 
-        .results-table td:nth-child(3),
-        .results-table td:nth-child(4) {
-            width: 110px;
+        .results-table th.player-col {
+            text-align: left;
+            width: auto;
         }
 
-        .results-table tbody tr {
-            background-color: #fff;
-            transition: all 0.2s ease;
+        .results-table th.score-col {
+            width: 100px;
+            background: #e3f2fd;
+        }
+
+        .results-table th.tens-col {
+            width: 100px;
+            background: #fff3cd;
         }
 
         .results-table tbody tr:hover {
-            background-color: #f8f9fa;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #f8f9fa;
         }
 
-        .results-table tbody tr:last-child td {
-            border-bottom: none;
+        .results-table tbody tr:nth-child(1) {
+            background: #fff9e6;
         }
 
-        .results-table tbody tr:last-child td:first-child {
-            border-radius: 0 0 0 8px;
+        .results-table tbody tr:nth-child(1):hover {
+            background: #fff3cd;
         }
 
-        .results-table tbody tr:last-child td:last-child {
-            border-radius: 0 0 8px 0;
+        .results-table tbody tr:nth-child(2) {
+            background: #f5f5f5;
+        }
+
+        .results-table tbody tr:nth-child(2):hover {
+            background: #e9ecef;
+        }
+
+        .results-table tbody tr:nth-child(3) {
+            background: #fdf6f0;
+        }
+
+        .results-table tbody tr:nth-child(3):hover {
+            background: #f8f1e6;
+        }
+
+        .rank-cell {
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .rank-1 { color: #b8860b; }
+        .rank-2 { color: #6c757d; }
+        .rank-3 { color: #8b4513; }
+
+        .player-cell {
+            text-align: left !important;
+            padding-left: 12px !important;
+        }
+
+        .player-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+            hyphens: none;
+        }
+
+        .score-cell {
+            background: #e3f2fd !important;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        .tens-cell {
+            background: #fff3cd !important;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #856404;
         }
 
         .position-badge {
@@ -842,9 +967,10 @@
         .results-actions {
             display: flex;
             gap: 1rem;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             flex-wrap: wrap;
+            margin-top: 1rem;
         }
 
         .btn {
@@ -1043,6 +1169,183 @@
                 flex-shrink: 0;
                 justify-content: center;
             }
+
+            .results-header {
+                padding: 15px;
+            }
+
+            .results-title {
+                font-size: 1.6rem;
+            }
+
+            .results-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .results-meta {
+                gap: 10px;
+            }
+
+            .meta-number {
+                font-size: 1.4rem;
+            }
+
+            .meta-label {
+                font-size: 0.7rem;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 8px 4px;
+                font-size: 0.85rem;
+            }
+
+            .results-table th.score-col,
+            .results-table th.tens-col {
+                width: 80px;
+            }
+
+            .results-actions {
+                flex-direction: column;
+            }
+
+            .results-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .navbar,
+            .view-actions,
+            .results-actions,
+            .history-container,
+            .instructions-panel {
+                display: none !important;
+            }
+
+            html, body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                color: black;
+                height: auto;
+                overflow: visible;
+            }
+
+            .app-container {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .view {
+                display: none !important;
+            }
+
+            #view-results {
+                display: block !important;
+                background: white;
+                padding: 20px;
+                margin: 0;
+            }
+
+            .results-header {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+                background: white !important;
+                color: black !important;
+                border: 1px solid #ddd;
+            }
+
+            .results-header::before {
+                display: none !important;
+            }
+
+            .results-header * {
+                color: black !important;
+                text-shadow: none !important;
+            }
+
+            .header-logo {
+                display: block !important;
+                height: 60px;
+                max-width: 160px;
+                margin: 0 auto 15px;
+                filter: none;
+                background-color: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .results-title {
+                font-size: 28pt;
+                margin-bottom: 10px;
+                color: black !important;
+            }
+
+            .results-subtitle {
+                font-size: 14pt;
+                margin-bottom: 15px;
+                color: #333 !important;
+            }
+
+            .results-meta {
+                margin-bottom: 20px;
+            }
+
+            .meta-number {
+                color: #000 !important;
+            }
+
+            .meta-label {
+                color: #666 !important;
+            }
+
+            .results-table-container {
+                background: white;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+                margin-top: 20px;
+            }
+
+            .results-table {
+                border-collapse: collapse;
+                width: 100%;
+                font-size: 11pt;
+            }
+
+            .results-table th,
+            .results-table td {
+                border: 1px solid #999;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .results-table th {
+                background-color: #ddd;
+                font-weight: bold;
+                color: black;
+            }
+
+            .results-table tbody tr {
+                background-color: white !important;
+            }
+
+            .results-table tbody tr:nth-child(even) td {
+                background-color: #f5f5f5;
+            }
+
+            h2 {
+                page-break-after: avoid;
+                margin-top: 0;
+                font-size: 20pt;
+            }
+
+            /* Prevent orphaned headers */
+            h3 {
+                page-break-after: avoid;
+            }
         }
     </style>
 </head>
@@ -1214,15 +1517,47 @@
 
         <!-- View 4: Results Display -->
         <div id="view-results" class="view">
-            <h2 data-i18n="results.final_results">Final Results</h2>
+            <!-- Results Header -->
+            <div class="results-header" id="results-header">
+                <img src="logo.png" alt="Logo" class="header-logo" style="display: none;">
+                <div class="results-title">
+                    🏆 <span data-i18n="results.final_results">Final Results</span>
+                </div>
+                <div class="results-subtitle" data-i18n="results.rankings">Complete Rankings</div>
+                <div class="results-meta">
+                    <div class="meta-item">
+                        <span class="meta-number" id="header-participants">0</span>
+                        <span class="meta-label" data-i18n="tournament.participants">Participants</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-number" id="header-configuration"><span id="header-targets">0</span>×<span id="header-shots">0</span></span>
+                        <span class="meta-label" data-i18n="results.tournament_configuration">Tournament Config</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-number" id="header-highest-score">0</span>
+                        <span class="meta-label" data-i18n="results.highest_score">Highest Score</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-number" id="header-most-tens">0</span>
+                        <span class="meta-label" data-i18n="results.most_tens">Most 10s</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Results Table -->
             <div class="results-table-container">
                 <table class="results-table" id="results-table"></table>
             </div>
 
             <div class="results-actions">
                 <button class="btn btn-info" onclick="downloadExcel()">
-                    📥 <span data-i18n="results.export_excel">Download Excel</span>
+                    📊 <span data-i18n="results.export_excel">Download Excel</span>
+                </button>
+                <button class="btn btn-info" onclick="downloadJSON()">
+                    📄 <span data-i18n="results.export_json">Download JSON</span>
+                </button>
+                <button class="btn btn-info" onclick="downloadPDF()">
+                    🖨️ <span data-i18n="results.export_pdf">Print/PDF</span>
                 </button>
                 <button class="btn btn-secondary" onclick="startNewTournament()">
                     <span data-i18n="navigation.back">Back to Start</span>
@@ -1279,7 +1614,8 @@
                 "tournament_types.20_targets_desc": "Standard format (2 shots each)",
                 "tournament_types.40_targets": "40 Targets",
                 "tournament_types.40_targets_desc": "Extended format (2 shots each)",
-                "results.total_shots": "Total Shots:",
+                "tournament.participants": "Participants",
+                "results.total_shots": "Total Shots",
                 "results.final_results": "Final Results",
                 "results.title": "Tournament Results",
                 "results.date": "Date",
@@ -1287,7 +1623,15 @@
                 "results.position": "Position",
                 "results.tens": "Tens",
                 "results.total_score": "Total Score",
+                "results.rankings": "Complete Rankings",
+                "results.number_of_targets": "Number of Targets",
+                "results.shots_per_target": "Shots per Target",
+                "results.tournament_configuration": "Tournament Config",
+                "results.highest_score": "Highest Score",
+                "results.most_tens": "Most 10s",
                 "results.export_excel": "Download Excel",
+                "results.export_json": "Download JSON",
+                "results.export_pdf": "Print/PDF",
                 "results.view_history": "View History",
                 "results.history_title": "Tournament History",
                 "results.no_history": "No tournaments yet. Start a tournament to build history!",
@@ -1366,6 +1710,7 @@
                 "tournament_types.20_targets_desc": "Standardni format (2 strela vsako)",
                 "tournament_types.40_targets": "40 Tarč",
                 "tournament_types.40_targets_desc": "Razširjen format (2 strela vsako)",
+                "tournament.participants": "Udeleženci",
                 "results.total_shots": "Skupno število strelov",
                 "results.final_results": "Končni rezultati",
                 "results.title": "Rezultati Turnirja",
@@ -1374,7 +1719,15 @@
                 "results.position": "Mesto",
                 "results.tens": "Desetke",
                 "results.total_score": "Skupni rezultat",
+                "results.rankings": "Popolna Lestvica",
+                "results.number_of_targets": "Število tarč",
+                "results.shots_per_target": "Strelov na tarčo",
+                "results.tournament_configuration": "Nastavitev Turnirja",
+                "results.highest_score": "Najvišji rezultat",
+                "results.most_tens": "Največ Desetek",
                 "results.export_excel": "Prenesi Excel",
+                "results.export_json": "Prenesi JSON",
+                "results.export_pdf": "Natisni/PDF",
                 "results.view_history": "Poglej zgodovino",
                 "results.history_title": "Zgodovina Turnirjev",
                 "results.no_history": "Ni turnirjev. Začni turnir, da zgradimo zgodovino!",
@@ -2357,27 +2710,47 @@
          */
         function displayResults(results) {
             const table = document.getElementById('results-table');
+            const header = document.getElementById('results-header');
+
+            // Update header with tournament type styling
+            const tournamentType = app.tournamentConfig.type || '20_targets';
+            header.className = `results-header tournament-${tournamentType}`;
+            console.log('[App] Header class set to:', header.className, 'Tournament type:', tournamentType);
+
+            // Update header statistics
+            const highestScore = results.length > 0 ? results[0].totalScore : 0;
+            const mostTens = results.length > 0 ? Math.max(...results.map(r => r.tensCount)) : 0;
+
+            document.getElementById('header-participants').textContent = results.length;
+            document.getElementById('header-targets').textContent = app.tournamentConfig.targets || 0;
+            document.getElementById('header-shots').textContent = app.tournamentConfig.bulletsPerTarget || 0;
+            document.getElementById('header-highest-score').textContent = highestScore;
+            document.getElementById('header-most-tens').textContent = mostTens;
 
             let html = `
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>${t('players.player')}</th>
-                        <th>${t('results.total_score')}</th>
-                        <th>${t('results.tens')}</th>
+                        <th class="rank-col">${t('results.position')}</th>
+                        <th class="player-col">${t('players.player')}</th>
+                        <th class="score-col">${t('results.total_score')}</th>
+                        <th class="tens-col">${t('results.tens')}</th>
                     </tr>
                 </thead>
                 <tbody>
             `;
 
             results.forEach(result => {
-                const badgeClass = result.position === 1 ? 'gold' : result.position === 2 ? 'silver' : result.position === 3 ? 'bronze' : '';
+                const rankClass = result.position <= 3 ? `rank-${result.position}` : 'rank-other';
+                const medal = result.position === 1 ? '🥇' :
+                             result.position === 2 ? '🥈' :
+                             result.position === 3 ? '🥉' : '';
+
                 html += `
                     <tr>
-                        <td><span class="position-badge ${badgeClass}">${result.position}</span></td>
-                        <td><span class="player-score-name">${result.name}</span></td>
-                        <td>${result.totalScore}</td>
-                        <td>${result.tensCount}</td>
+                        <td class="rank-cell ${rankClass}">${result.position} ${medal}</td>
+                        <td class="player-cell"><div class="player-name">${result.name}</div></td>
+                        <td class="score-cell">${result.totalScore}</td>
+                        <td class="tens-cell">🎯 ${result.tensCount}</td>
                     </tr>
                 `;
             });
@@ -2466,18 +2839,12 @@
 
                 // Add player data rows
                 app.lastResults.forEach(result => {
-                    const player = playersData.find(p => p.name === result.name);
-                    if (!player) {
-                        console.warn('[App] Player not found for result:', result.name);
-                        return;
-                    }
-
                     const row = [result.position, result.name];
 
-                    // Add all target/bullet scores
+                    // Add all target/bullet scores using result.id (which is the player ID)
                     for (let i = 1; i <= app.tournamentConfig.targets; i++) {
                         for (let j = 1; j <= app.tournamentConfig.bulletsPerTarget; j++) {
-                            const score = scoresData[player.id]?.[i]?.[j];
+                            const score = scoresData[result.id]?.[i]?.[j];
                             row.push(score !== null && score !== undefined ? score : 0);
                         }
                     }
@@ -2700,6 +3067,138 @@
             } catch (error) {
                 console.error('[App] Excel export error:', error);
                 alert(t('excel.export_error') + ' ' + error.message);
+            }
+        }
+
+        // ===== JSON EXPORT =====
+
+        /**
+         * Download results as JSON file
+         */
+        function downloadJSON() {
+            try {
+                if (!app.tournamentConfig || !app.selectedPlayers || !app.lastResults || app.lastResults.length === 0) {
+                    alert(t('excel.no_results'));
+                    console.warn('[App] Missing required data for JSON export:', {
+                        tournamentConfig: !!app.tournamentConfig,
+                        selectedPlayers: !!app.selectedPlayers,
+                        lastResults: !!app.lastResults,
+                        resultsLength: app.lastResults ? app.lastResults.length : 0
+                    });
+                    return;
+                }
+
+                console.log('[App] JSON export - scores:', app.scores);
+
+                // Validate tournament type - only valid if it matches known configurations
+                // Valid: 4 targets + 5 shots, 20 targets + 2 shots, 40 targets + 2 shots
+                const isValidTournament =
+                    (app.tournamentConfig.type === '4_targets' && app.tournamentConfig.targets === 4 && app.tournamentConfig.bulletsPerTarget === 5) ||
+                    (app.tournamentConfig.type === '20_targets' && app.tournamentConfig.targets === 20 && app.tournamentConfig.bulletsPerTarget === 2) ||
+                    (app.tournamentConfig.type === '40_targets' && app.tournamentConfig.targets === 40 && app.tournamentConfig.bulletsPerTarget === 2);
+
+                const tournamentType = isValidTournament ? app.tournamentConfig.type : null;
+
+                // Build the JSON structure matching the example format
+                const tournamentData = {
+                    tournament: {
+                        rounds: [],
+                        created_at: new Date().toISOString(),
+                        total_players: app.selectedPlayers.length,
+                        total_rounds: app.tournamentConfig.targets || 0,
+                        current_round: 1,
+                        tournament_type: tournamentType
+                    },
+                    results: {
+                        tournament_id: new Date().toISOString(),
+                        tournament_type: tournamentType,
+                        participants: {},
+                        tournament_finished: true,
+                        created_at: new Date().toISOString(),
+                        finished_at: new Date().toISOString()
+                    },
+                    archived_at: new Date().toISOString()
+                };
+
+                // Build participants data with scores from tournament state
+                // Use same method as Excel export - lastScores or current scores
+                const scoresData = app.lastScores || app.scores;
+
+                if (app.lastResults && app.lastResults.length > 0) {
+                    app.lastResults.forEach(result => {
+                        const playerId = result.id;
+                        const targets = {};
+
+                        // Structure targets properly - each target contains shots (1-indexed)
+                        // Use same access pattern as Excel export
+                        for (let targetId = 1; targetId <= (app.tournamentConfig.targets || 0); targetId++) {
+                            targets[targetId] = {};
+                            for (let bulletId = 1; bulletId <= (app.tournamentConfig.bulletsPerTarget || 0); bulletId++) {
+                                // Use optional chaining same as Excel export
+                                const score = scoresData[playerId]?.[targetId]?.[bulletId];
+                                targets[targetId][`shot${bulletId}`] = score !== null && score !== undefined ? parseInt(score) : 0;
+                            }
+                        }
+
+                        tournamentData.results.participants[playerId] = {
+                            name: result.name,
+                            targets: targets,
+                            total_score: result.totalScore || 0,
+                            completed: true
+                        };
+                    });
+                }
+
+                // Create and download file
+                const jsonString = JSON.stringify(tournamentData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                link.href = url;
+                link.download = `tournament_${dateStr}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                console.log('[App] JSON export completed successfully');
+            } catch (error) {
+                console.error('[App] JSON export error:', error);
+                alert(t('excel.export_error') + ' ' + error.message);
+            }
+        }
+
+        // ===== PDF EXPORT =====
+
+        /**
+         * Print/export results as PDF
+         */
+        function downloadPDF() {
+            try {
+                // Generate filename with tournament details
+                const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                const targets = app.tournamentConfig.targets || 0;
+                const shots = app.tournamentConfig.bulletsPerTarget || 0;
+                const filename = `Tournament_${dateStr}_${targets}targets_${shots}shots`;
+
+                // Set document title for PDF export
+                const originalTitle = document.title;
+                document.title = filename;
+
+                // Trigger print dialog
+                window.print();
+
+                // Restore original title after print dialog closes
+                // Note: This executes immediately but print dialog is asynchronous
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 100);
+
+                console.log('[App] PDF export initiated with filename:', filename);
+            } catch (error) {
+                console.error('[App] PDF export error:', error);
+                alert('Error exporting PDF: ' + error.message);
             }
         }
 
