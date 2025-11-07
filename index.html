@@ -236,9 +236,29 @@
 
         .player-controls {
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.8rem;
             margin-bottom: 1rem;
-            align-items: flex-end;
+        }
+
+        .player-controls .search-box {
+            width: 100%;
+            margin-bottom: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .player-controls-buttons {
+            display: flex;
+            gap: 0.8rem;
+            align-items: stretch;
+        }
+
+        .player-controls-buttons button {
+            flex: 1;
+            padding: 0.8rem 1rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
 
         .search-box input {
@@ -370,6 +390,31 @@
 
         .player-card.selected .player-delete-btn:hover {
             background: #fa5252;
+        }
+
+        /* ===== PLAYER CARD CONTAINERS ===== */
+        .player-selection-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-entry-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         /* ===== CONFIG SECTION ===== */
@@ -850,55 +895,75 @@
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-            cursor: pointer;
             position: relative;
         }
 
-        .history-card:hover {
-            border-color: #007bff;
-            box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+        .history-card-header {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px 8px 0 0;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .history-card-header-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .history-card-config {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
         }
 
         .history-card-date {
             font-size: 0.9rem;
-            color: #999;
-            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .history-card-config {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 1rem;
+        .history-card-date::before {
+            content: '📅';
+            font-size: 1rem;
         }
 
-        .history-card-winner {
-            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        .history-card-header .history-card-delete {
+            position: static;
+            background: #dc3545;
             color: white;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            text-align: center;
+            border: none;
+            padding: 0.5rem 0.7rem;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
         }
 
-        .history-card-winner-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .history-card-winner-score {
-            font-size: 0.9rem;
-            opacity: 0.95;
+        .history-card-header .history-card-delete:hover {
+            background: #c82333;
+            transform: scale(1.1);
         }
 
         .history-card-podium {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
+            gap: 0.75rem;
+            margin: 1.5rem 0;
             padding: 1rem;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
             border-radius: 6px;
+            min-height: 120px;
+            justify-content: center;
         }
 
         .podium-entry {
@@ -906,30 +971,45 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.5rem 0;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
         }
 
         .podium-entry .medal {
-            font-size: 1.2rem;
-            min-width: 24px;
+            font-size: 1.4rem;
+            min-width: 32px;
+            text-align: center;
         }
 
         .podium-entry .name {
             flex: 1;
             color: #2c3e50;
             font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .podium-entry .score {
             color: #666;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            font-weight: 600;
         }
 
         .history-card-players {
-            font-size: 0.85rem;
-            color: #666;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+            padding: 0.75rem 1rem;
+            margin: 1rem -1.5rem -1.5rem -1.5rem;
             text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .history-card-players::before {
+            content: '👥 ';
         }
 
         .history-card-delete {
@@ -997,6 +1077,19 @@
             border-color: #0056b3;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #ccc !important;
+            border-color: #ccc !important;
+            color: #666 !important;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .btn-secondary {
@@ -1152,21 +1245,16 @@
             }
 
             .player-controls {
-                gap: 0.5rem;
-                align-items: flex-end;
+                gap: 0.6rem;
             }
 
-            .player-controls .search-box {
-                margin-right: 0.5rem !important;
-                margin-bottom: 0 !important;
-                flex: 1;
+            .player-controls-buttons {
+                gap: 0.6rem;
             }
 
-            #toggle-all-btn {
-                width: 20% !important;
-                padding: 0.8rem 0.4rem !important;
-                flex-shrink: 0;
-                justify-content: center;
+            .player-controls-buttons button {
+                padding: 0.8rem 0.5rem !important;
+                font-size: 0.95rem;
             }
 
             .results-header {
@@ -1373,10 +1461,10 @@
             <div class="instructions-panel" id="instructions-participants">
                 <h3>📋 <span data-i18n="instructions.title">Instructions</span></h3>
                 <ol>
-                    <li><span data-i18n="instructions.search">Search Players: Type a player name to find them quickly</span></li>
+                    <li><span data-i18n="instructions.search">Search or Add: Type a player name to search existing players or add new ones</span></li>
                     <li><span data-i18n="instructions.select_all">Select All: Click the ✓ button to select/deselect all visible players</span></li>
+                    <li><span data-i18n="instructions.add_button">Add: Type a name and press Enter or wait for the Add button to appear</span></li>
                     <li><span data-i18n="instructions.select">Select Players: Click on player cards to select/deselect them</span></li>
-                    <li><span data-i18n="instructions.add_new">Add New: Enter a name and click "Add" to add new players</span></li>
                     <li><span data-i18n="instructions.delete">Delete: Click the ✕ button on a player card to remove them</span></li>
                     <li><span data-i18n="instructions.history">History: View your last 5 tournaments in the Tournament History section below</span></li>
                     <li><span data-i18n="instructions.continue">Continue: Once you've selected players, click "Start Match"</span></li>
@@ -1385,18 +1473,23 @@
 
             <h2 data-i18n="players.player_management">Player Management</h2>
 
-            <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;" data-i18n="players.include_participant">Include a participant</label>
-            <div class="player-controls">
-                <div class="search-box" style="flex: 1; margin-bottom: 0; margin-right: 0.8rem;">
-                    <input type="text"
-                           id="player-search"
-                           placeholder="Search players..."
-                           data-i18n-placeholder="league.search_players_placeholder"
-                           onkeyup="filterPlayers()">
+            <div class="player-selection-card">
+                <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;" data-i18n="players.include_participant">Include a participant</label>
+                <div class="player-controls">
+                    <div class="search-box">
+                        <input type="text"
+                               id="player-search"
+                               placeholder="Search or add player..."
+                               data-i18n-placeholder="league.search_players_placeholder"
+                               onkeyup="filterPlayers()">
+                    </div>
+                    <div class="player-controls-buttons">
+                        <button class="btn btn-primary" id="toggle-all-btn" onclick="toggleAllPlayersButton()" title="Toggle select all">✓</button>
+                        <button class="btn btn-primary" id="add-player-btn" data-i18n="players.add_button" disabled>+</button>
+                    </div>
                 </div>
-                <button class="btn btn-primary" id="toggle-all-btn" onclick="toggleAllPlayersButton()" title="Toggle select all" style="padding: 0.8rem 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✓</button>
+                <div class="players-list" id="players-list"></div>
             </div>
-            <div class="players-list" id="players-list"></div>
 
             <!-- Start Match Button -->
             <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
@@ -1406,7 +1499,7 @@
             </div>
 
             <!-- Tournament History Section -->
-            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef;">
+            <div class="history-card">
                 <button class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
                     <span class="collapsible-icon">▼</span>
                     <h3 style="font-size: 1.4rem; margin: 0; color: #2c3e50; display: inline;" data-i18n="results.history_title">Tournament History</h3>
@@ -1655,11 +1748,11 @@
                 "messages.email_error": "Error sending email. Please try again.",
                 "instructions.title": "Instructions",
                 "instructions.participants": "Instructions for Player Selection",
-                "instructions.search": "Search Players: Type a player name to find them quickly",
-                "instructions.select": "Select Players: Click on player cards to select/deselect them",
-                "instructions.add_new": "Add New: Enter a name and click \"Add\" to add new players",
-                "instructions.delete": "Delete: Click the ✕ button on a player card to remove them",
+                "instructions.search": "Search or Add: Type a player name to search existing players or add new ones",
                 "instructions.select_all": "Select All: Click the ✓ button to select/deselect all visible players",
+                "instructions.add_button": "Add: Type a name and press Enter or wait for the Add button to appear",
+                "instructions.select": "Select Players: Click on player cards to select/deselect them",
+                "instructions.delete": "Delete: Click the ✕ button on a player card to remove them",
                 "instructions.history": "History: View your last 5 tournaments in the Tournament History section below",
                 "instructions.continue": "Continue: Once you've selected players, click \"Start Match\"",
                 "instructions.config": "Instructions for Tournament Configuration",
@@ -1751,11 +1844,11 @@
                 "messages.email_error": "Napaka pri pošiljanju e-pošte. Prosimo, poskusite znova.",
                 "instructions.title": "Navodila",
                 "instructions.participants": "Navodila za izbiro igralcev",
-                "instructions.search": "Iskanje igralcev: Vnesite ime igralca za hitro iskanje",
-                "instructions.select": "Izberi igralce: Klikni na kartice igralcev za izbiro/odselekcioniraj jih",
-                "instructions.add_new": "Dodaj novega: Vnesite ime in kliknite \"Dodaj\" za dodajanje novih igralcev",
-                "instructions.delete": "Izbriši: Kliknite gumb ✕ na kartici igralca za njihovo odstranitev",
+                "instructions.search": "Iskanje ali Dodaj: Vnesite ime igralca za iskanje obstoječih ali dodajanje novih",
                 "instructions.select_all": "Izberi vse: Kliknite gumb ✓ za izbiro/odselekcioniraj vse vidne igralce",
+                "instructions.add_button": "Dodaj: Vnesite ime in pritisnite Enter ali počakajte, da se prikaže gumb Dodaj",
+                "instructions.select": "Izberi igralce: Klikni na kartice igralcev za izbiro/odselekcioniraj jih",
+                "instructions.delete": "Izbriši: Kliknite gumb ✕ na kartici igralca za njihovo odstranitev",
                 "instructions.history": "Zgodovina: Oglejte si vaših zadnjih 5 turnirjev v razdelku Zgodovina Turnirjev spodaj",
                 "instructions.continue": "Nadaljuj: Ko ste izbrali igralce, kliknite \"Začni tekmo\"",
                 "instructions.config": "Navodila za konfiguracija turnirja",
@@ -2030,42 +2123,29 @@
             }
         }
 
-        /* ===== UI: Add Player + Reset Button ===== */
-        function createPlayerControlBar() {
-            const controlBar = document.createElement('div');
-            controlBar.style.cssText = `
-                display: flex;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-                flex-wrap: wrap;
-                align-items: flex-end;
-            `;
+        /* ===== UI: Setup Add Player Button ===== */
+        function setupAddPlayerButton() {
+            const searchInput = document.getElementById('player-search');
+            const addBtn = document.getElementById('add-player-btn');
 
-            controlBar.innerHTML = `
-                <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem;" data-i18n="players.add_new_player">Add new player</label>
-                    <input id="new-player-name" type="text" placeholder="Player name..." data-i18n-placeholder="players.name_placeholder" style="padding:0.8rem; border:2px solid #e9ecef; border-radius:8px; font-size: 1rem; transition: all 0.2s ease;">
-                </div>
-                <button class="btn btn-primary" id="add-player-btn" style="margin-bottom: 0;" data-i18n="players.add_button">Add</button>
-            `;
-
-            const playersList = document.getElementById('players-list');
-            playersList.insertAdjacentElement('afterend', controlBar);
-
-            // Apply translations to dynamically created elements
-            updateAllTranslations();
-
-            document.getElementById('add-player-btn').addEventListener('click', () => {
-                const nameInput = document.getElementById('new-player-name');
-                addPlayer(nameInput.value);
-                nameInput.value = '';
-                nameInput.focus();
+            // Enable/disable button based on input value
+            searchInput.addEventListener('input', (e) => {
+                const hasText = e.target.value.trim().length > 0;
+                addBtn.disabled = !hasText;
             });
 
-            // Allow Enter key to add player
-            document.getElementById('new-player-name').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('add-player-btn').click();
+            addBtn.addEventListener('click', () => {
+                addPlayer(searchInput.value);
+                searchInput.value = '';
+                addBtn.disabled = true;
+                searchInput.focus();
+                filterPlayers(); // Refresh the player list after adding
+            });
+
+            // Allow Enter key to add player (only if button is enabled)
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !addBtn.disabled) {
+                    addBtn.click();
                 }
             });
         }
@@ -2102,7 +2182,7 @@
             // Load and display tournament history on participants page
             displayParticipantsPageHistory();
 
-            createPlayerControlBar();
+            setupAddPlayerButton();
             updateAllTranslations();
 
             // Initialize help button (show on participant selection page)
@@ -3351,15 +3431,20 @@
 
                 history.forEach((tournament, index) => {
                     const date = new Date(tournament.date);
-                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
-                    const configStr = `${tournament.config.targets} ${t('results.targets')} × ${tournament.config.bulletsPerTarget} ${t('results.shots')}`;
+                    const dateStr = date.toLocaleDateString();
+                    const configStr = `${tournament.config.targets}T × ${tournament.config.bulletsPerTarget}S`;
                     const topThree = tournament.results.slice(0, 3);
 
                     const card = document.createElement('div');
                     card.className = 'history-card';
                     card.innerHTML = `
-                        <div class="history-card-date">${dateStr}</div>
-                        <div class="history-card-config">${configStr}</div>
+                        <div class="history-card-header">
+                            <div class="history-card-header-content">
+                                <div class="history-card-config">${configStr}</div>
+                                <div class="history-card-date">${dateStr}</div>
+                            </div>
+                            <button class="history-card-delete" title="Delete tournament" onclick="event.stopPropagation(); deleteHistoryItem(${tournament.timestamp})">✕</button>
+                        </div>
                         <div class="history-card-podium">
                             ${topThree.map((player, idx) => {
                                 const medals = ['🥇', '🥈', '🥉'];
@@ -3372,9 +3457,7 @@
                                 `;
                             }).join('')}
                         </div>
-                        <div class="history-card-players">
-                            <strong>${tournament.results.length} ${t('results.players')}</strong>
-                        </div>
+                        <div class="history-card-players">${tournament.results.length} ${t('results.players')}</div>
                     `;
 
                     // Add click handler to restore tournament
@@ -3432,17 +3515,21 @@
 
                 history.forEach((tournament, index) => {
                     const date = new Date(tournament.date);
-                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
-                    const configStr = `${tournament.config.targets} ${t('results.targets')} × ${tournament.config.bulletsPerTarget} ${t('results.shots')}`;
+                    const dateStr = date.toLocaleDateString();
+                    const configStr = `${tournament.config.targets}T × ${tournament.config.bulletsPerTarget}S`;
                     const topThree = tournament.results.slice(0, 3);
 
                     const card = document.createElement('div');
                     card.className = 'history-card';
                     card.style.cursor = 'pointer';
                     card.innerHTML = `
-                        <button class="history-card-delete" title="Delete tournament" onclick="event.stopPropagation(); deleteHistoryItem(${tournament.timestamp})">✕</button>
-                        <div class="history-card-date">${dateStr}</div>
-                        <div class="history-card-config">${configStr}</div>
+                        <div class="history-card-header">
+                            <div class="history-card-header-content">
+                                <div class="history-card-config">${configStr}</div>
+                                <div class="history-card-date">${dateStr}</div>
+                            </div>
+                            <button class="history-card-delete" title="Delete tournament" onclick="event.stopPropagation(); deleteHistoryItem(${tournament.timestamp})">✕</button>
+                        </div>
                         <div class="history-card-podium">
                             ${topThree.map((player, idx) => {
                                 const medals = ['🥇', '🥈', '🥉'];
@@ -3455,9 +3542,7 @@
                                 `;
                             }).join('')}
                         </div>
-                        <div class="history-card-players">
-                            <strong>${tournament.results.length} ${t('results.players')}</strong>
-                        </div>
+                        <div class="history-card-players">${tournament.results.length} ${t('results.players')}</div>
                     `;
 
                     // Add click handler to restore tournament
