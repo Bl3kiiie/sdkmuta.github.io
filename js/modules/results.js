@@ -110,13 +110,20 @@ async function displayTournamentHistory() {
             const configStr = `${tournament.config.targets}T × ${tournament.config.bulletsPerTarget}S`;
             const topThree = tournament.results.slice(0, 3);
 
+            // Determine tournament type and emoji
+            const tournamentType = tournament.config.type;
+            const typeEmoji = tournamentType === 'small-targets' ? '🎯' :
+                            tournamentType === 'medium-targets' ? '⚡' :
+                            tournamentType === 'large-targets' ? '💪' : '🏆';
+            const cssClassName = tournamentType ? tournamentType.replace(/_/g, '-') : 'medium-targets';
+
             const card = document.createElement('div');
             card.className = 'history-card';
             card.style.cursor = 'pointer';
             card.innerHTML = `
-                <div class="history-card-header">
+                <div class="history-card-header history-card-header-${cssClassName}">
                     <div class="history-card-header-content">
-                        <div class="history-card-config">${configStr}</div>
+                        <div class="history-card-config">${typeEmoji} ${configStr}</div>
                         <div class="history-card-date">${dateStr}</div>
                     </div>
                     <button class="history-card-delete" title="Delete tournament" onclick="event.stopPropagation(); deleteHistoryItem(${tournament.timestamp})">✕</button>
