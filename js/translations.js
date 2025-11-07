@@ -233,7 +233,7 @@ const translations = {
         "excel.tournament_info": "Informacije o turnirju",
         "excel.date": "Datum",
         "excel.targets": "Tarče",
-        "excel.bullets_per_target": "Izstrelki na tarčo",
+        "excel.bullets_per_target": "Strelov na tarčo",
         "excel.total_players": "Skupno igralcev"
     }
 };
