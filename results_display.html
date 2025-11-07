@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="tournament.tournament_results">Tournament Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      color: #333;
+    }
+
+    .navbar {
+      background: white;
+      border-bottom: 1px solid #e1e5e9;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 15px 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-logo {
+      height: 40px;
+      max-width: 120px;
+      object-fit: contain;
+    }
+
+    .navbar-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+      margin-left: 15px;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: #333;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .nav-btn:hover {
+      background: #e9ecef;
+      border-color: #007bff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+      color: #007bff;
+    }
+
+    .nav-btn.primary {
+      background: #007bff;
+      border-color: #0056b3;
+      color: white;
+    }
+
+    .nav-btn.primary:hover {
+      background: #0056b3;
+      color: white;
+    }
+
+    /* Main TV Layout */
+    .tv-container {
+      height: calc(100vh - 90px);
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    /* Left Column - Header & Podium */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .results-header {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 25px;
+      text-align: center;
+      flex-shrink: 0;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Dynamic header colors based on tournament type */
+    .results-header.tournament-4_targets {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .results-header.tournament-20_targets {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    }
+
+    .results-header.tournament-40_targets {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .results-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+      pointer-events: none;
+    }
+
+    .results-header * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .header-logo {
+      height: 70px;
+      max-width: 180px;
+      object-fit: contain;
+      margin-bottom: 20px;
+      filter: brightness(1.2) contrast(1.1);
+      background-color: white;
+      padding: 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .results-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: rgb(255, 255, 255);
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .results-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 20px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .results-meta {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .meta-item {
+      text-align: center;
+    }
+
+    .meta-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: block;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .meta-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    /* Modern Podium Design */
+    .podium-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .podium-title {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    .podium-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .podium-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      border-left: 5px solid;
+    }
+
+    .podium-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .podium-card.rank-1 {
+      border-left-color: #ffd700;
+      background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+    }
+
+    .podium-card.rank-2 {
+      border-left-color: #c0c0c0;
+      background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+    }
+
+    .podium-card.rank-3 {
+      border-left-color: #cd7f32;
+      background: linear-gradient(135deg, #fdf6f0 0%, #ffffff 100%);
+    }
+
+    .rank-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px;
+    }
+
+    .rank-number {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+      line-height: 1;
+    }
+
+    .podium-card.rank-1 .rank-number { color: #b8860b; }
+    .podium-card.rank-2 .rank-number { color: #696969; }
+    .podium-card.rank-3 .rank-number { color: #8b4513; }
+
+    .rank-suffix {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .medal {
+      font-size: 1.5rem;
+      margin-top: 3px;
+    }
+
+    .participant-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .participant-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+      word-wrap: break-word;
+    }
+
+    .participant-id {
+      background: #007bff;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .score-display {
+      text-align: right;
+      min-width: 100px;
+    }
+
+    .score-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #28a745;
+      line-height: 1;
+    }
+
+    .tens-count {
+      font-size: 1rem;
+      color: #ffc107;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .score-label {
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    /* Right Column - Full Results Table */
+    .right-column {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-header {
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      flex-shrink: 0;
+    }
+
+    .table-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .results-table th,
+    .results-table td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #f1f3f4;
+      border-right: 1px solid #f1f3f4;
+    }
+
+    .results-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .results-table th.rank-col {
+      width: 80px;
+    }
+
+    .results-table th.player-col {
+      text-align: left;
+      width: auto;
+    }
+
+    .results-table th.score-col {
+      width: 100px;
+      background: #e3f2fd;
+    }
+
+    .results-table th.tens-col {
+      width: 100px;
+      background: #fff3cd;
+    }
+
+    .results-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .results-table tbody tr:nth-child(1) {
+      background: #fff9e6;
+    }
+
+    .results-table tbody tr:nth-child(1):hover {
+      background: #fff3cd;
+    }
+
+    .results-table tbody tr:nth-child(2) {
+      background: #f5f5f5;
+    }
+
+    .results-table tbody tr:nth-child(2):hover {
+      background: #e9ecef;
+    }
+
+    .results-table tbody tr:nth-child(3) {
+      background: #fdf6f0;
+    }
+
+    .results-table tbody tr:nth-child(3):hover {
+      background: #f8f1e6;
+    }
+
+    .rank-cell {
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .rank-1 { color: #b8860b; }
+    .rank-2 { color: #6c757d; }
+    .rank-3 { color: #8b4513; }
+
+    .player-cell {
+      text-align: left !important;
+      padding-left: 12px !important;
+    }
+
+    .player-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2c3e50;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      hyphens: none;
+    }
+
+    .score-cell {
+      background: #e3f2fd !important;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1976d2;
+    }
+
+    .tens-cell {
+      background: #fff3cd !important;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #856404;
+    }
+
+    /* Tournament Stats Footer */
+    .stats-footer {
+      background: white;
+      border-top: 1px solid #dee2e6;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.8rem;
+      color: #6c757d;
+      flex-shrink: 0;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #007bff;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .tv-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .results-meta {
+        gap: 15px;
+      }
+
+      .meta-number {
+        font-size: 1.5rem;
+      }
+
+      .podium-section {
+        padding: 20px 15px;
+      }
+
+      .results-table {
+        font-size: 0.8rem;
+      }
+
+      .results-table th,
+      .results-table td {
+        padding: 8px 6px;
+      }
+
+      .tens-cell,
+      .score-cell {
+        width: 60px;
+      }
+    }
+
+
+    /* PRINT STYLES */
+    @media print {
+      .navbar,
+      .debug-info {
+        display: none !important;
+      }
+
+      html, body {
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .tv-container {
+        display: block !important;
+        height: auto !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        margin: 0 !important;
+      }
+
+      .left-column {
+        display: block !important;
+        margin-bottom: 0;
+      }
+
+      .results-header {
+        background: white !important;
+        color: #333 !important;
+        box-shadow: none !important;
+        border: 2px solid #ddd !important;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .results-header::before {
+        display: none !important;
+      }
+
+      .header-logo {
+        height: 60px !important;
+        max-width: 160px !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+        filter: none !important;
+        margin-bottom: 15px;
+      }
+
+      .results-title {
+        font-size: 24pt !important;
+        font-weight: bold !important;
+        color: #333 !important;
+        text-shadow: none !important;
+        margin-bottom: 10px;
+      }
+
+      .results-subtitle {
+        font-size: 14pt !important;
+        color: #666 !important;
+        text-shadow: none !important;
+        margin-bottom: 15px;
+      }
+
+      .results-meta {
+        color: #333 !important;
+      }
+
+      .meta-number {
+        color: #333 !important;
+        text-shadow: none !important;
+        font-size: 16pt !important;
+      }
+
+      .meta-label {
+        color: #666 !important;
+        font-size: 10pt !important;
+      }
+
+      .podium-section {
+        display: none !important;
+      }
+
+      .right-column {
+        background: white !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .table-header {
+        display: none !important;
+      }
+
+      .results-table {
+        margin-top: 0 !important;
+      }
+
+      .print-title {
+        display: none !important;
+      }
+
+      .table-title {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-title">🏆 <span data-i18n="tournament.tournament_results">Tournament Results</span></div>
+    </div>
+    <div class="navbar-controls">
+      <a href="/" class="nav-btn"> <span data-i18n="navigation.dashboard">Dashboard</span></a>
+      <button class="nav-btn" onclick="printResults()">🖨️ <span data-i18n="general.print">Print</span></button>
+    </div>
+  </div>
+
+
+  <div class="tv-container">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- Header Section -->
+      <div class="results-header tournament-{{ results.tournament_type if results and results.tournament_type else '20_targets' }}">
+        <img src="/static/logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'" />
+        <div class="results-title">
+          {% if results and results.tournament_type == '4_targets' %}
+            🎯 <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% elif results and results.tournament_type == '40_targets' %}
+            💪 <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% else %}
+            ⚡ <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% endif %}
+        </div>
+        <div class="results-subtitle" data-i18n="results.final_results">Final Rankings & Scores</div>
+        <div class="results-meta">
+          <div class="meta-item">
+            <span class="meta-number" id="participantCount">{{ participants|length }}</span>
+            <span class="meta-label" data-i18n="tournament.participants">Participants</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-number" id="totalShots">0</span>
+            <span class="meta-label" data-i18n="results.total_shots">Total Shots</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-number" id="highestScore">0</span>
+            <span class="meta-label" data-i18n="results.highest_score">Highest Score</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-number" id="mostTens">0</span>
+            <span class="meta-label" data-i18n="results.most_tens">Most 10s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Podium Section -->
+      <div class="podium-section" id="podiumSection">
+        <div class="podium-title">🏆 <span data-i18n="results.top_3_winners">Top 3 Winners</span></div>
+        <div class="podium-container" id="podiumContainer">
+          <!-- Podium cards will be generated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+      <div class="table-header">
+        <h3 class="table-title">📊 <span data-i18n="results.rankings">Complete Rankings</span></h3>
+        <!-- Print-only title -->
+        <div class="print-title" style="display: none;">
+          {% if results and results.tournament_type == '4_targets' %}
+            🎯 <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% elif results and results.tournament_type == '40_targets' %}
+            💪 <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% else %}
+            ⚡ <span data-i18n="tournament.tournament_results">Tournament Results</span>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th class="rank-col" data-i18n="results.position">Rank</th>
+              <th class="player-col" data-i18n="players.player">Participant</th>
+              <th class="score-col" data-i18n="results.score">Score</th>
+              <th class="tens-col" data-i18n="results.tens">10s</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody">
+            <!-- Table rows will be generated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="stats-footer">
+        <div class="stat-item">
+          <div class="stat-value" id="footerParticipants">0</div>
+          <div data-i18n="tournament.participants">Participants</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="footerHighest">0</div>
+          <div data-i18n="results.highest_score">Highest Score</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="footerAverage">0</div>
+          <div data-i18n="results.average_score">Average Score</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="footerMostTens">0</div>
+          <div data-i18n="results.most_tens">Most 10s</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="footerDate">Today</div>
+          <div data-i18n="general.date">Datum</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get data from template
+    const participants = {{ participants|tojson }};
+    const results = {{ results|tojson }};
+    
+    console.log('Raw participants data:', participants);
+    console.log('Raw results data:', results);
+
+    // Calculate 10s from shot data
+    function calculateTensFromTargets(targets) {
+      let tensCount = 0;
+      if (!targets || typeof targets !== 'object') {
+        return 0;
+      }
+      
+      for (let targetNum in targets) {
+        const target = targets[targetNum];
+        if (target && typeof target === 'object') {
+          for (let shotKey in target) {
+            if (shotKey.startsWith('shot') && target[shotKey] === 10) {
+              tensCount++;
+            }
+          }
+        }
+      }
+      return tensCount;
+    }
+
+    // Calculate 10s from participant data
+    function calculateTensForParticipant(participant) {
+      // Try different data structures
+      if (participant.targets) {
+        return calculateTensFromTargets(participant.targets);
+      }
+      
+      // If no targets, check if we can get them from results
+      if (results && results.participants) {
+        const resultParticipant = results.participants[participant.id];
+        if (resultParticipant && resultParticipant.targets) {
+          return calculateTensFromTargets(resultParticipant.targets);
+        }
+      }
+      
+      return 0;
+    }
+
+    // Process participant data and add calculated fields
+    function processParticipants() {
+      if (!participants || !Array.isArray(participants)) {
+        console.error('Invalid participants data:', participants);
+        return [];
+      }
+
+      return participants.map(participant => {
+        const tensCount = calculateTensForParticipant(participant);
+        console.log(`Player ${participant.name}: ${tensCount} tens`);
+        
+        return {
+          ...participant,
+          tens_count: tensCount
+        };
+      });
+    }
+
+    // Generate podium HTML
+    function generatePodiumHTML(processedParticipants) {
+      const topThree = processedParticipants.slice(0, 3);
+      
+      return topThree.map(participant => {
+        const suffix = participant.rank === 1 ? 'st' : 
+                      participant.rank === 2 ? 'nd' : 
+                      participant.rank === 3 ? 'rd' : 'th';
+        
+        const medal = participant.rank === 1 ? '🥇' : 
+                     participant.rank === 2 ? '🥈' : 
+                     participant.rank === 3 ? '🥉' : '';
+
+        return `
+          <div class="podium-card rank-${participant.rank}">
+            <div class="rank-display">
+              <div class="rank-number">${participant.rank}</div>
+              <div class="rank-suffix">${suffix}</div>
+              <div class="medal">${medal}</div>
+            </div>
+            
+            <div class="participant-info">
+              <div class="participant-name">${participant.name}</div>
+              <div class="participant-id">ID: ${participant.id}</div>
+            </div>
+            
+            <div class="score-display">
+              <div class="score-number">${participant.total_score}</div>
+              <div class="tens-count">🎯 ${participant.tens_count} × 10</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Generate table HTML
+    function generateTableHTML(processedParticipants) {
+      return processedParticipants.map(participant => {
+        const rankClass = participant.rank <= 3 ? `rank-${participant.rank}` : 'rank-other';
+        const medal = participant.rank === 1 ? '🥇' :
+                     participant.rank === 2 ? '🥈' :
+                     participant.rank === 3 ? '🥉' : '';
+
+        return `
+          <tr>
+            <td class="rank-cell ${rankClass}">
+              ${participant.rank} ${medal}
+            </td>
+            <td class="player-cell">
+              <div class="player-name">${participant.name}</div>
+            </td>
+            <td class="score-cell">${participant.total_score}</td>
+            <td class="tens-cell">🎯 ${participant.tens_count}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update statistics
+    function updateStatistics(processedParticipants) {
+      const count = processedParticipants.length;
+      const totalShots = count * (results && results.tournament_type === '40_targets' ? 80 : 
+                                  results && results.tournament_type === '4_targets' ? 20 : 40);
+      const highestScore = count > 0 ? processedParticipants[0].total_score : 0;
+      const mostTens = count > 0 ? Math.max(...processedParticipants.map(p => p.tens_count)) : 0;
+      const averageScore = count > 0 ? Math.round(processedParticipants.reduce((sum, p) => sum + p.total_score, 0) / count) : 0;
+      
+      const currentDate = results && results.created_at ? 
+                         results.created_at.substring(0, 10) : 
+                         new Date().toISOString().substring(0, 10);
+
+      // Update header stats
+      document.getElementById('participantCount').textContent = count;
+      document.getElementById('totalShots').textContent = totalShots;
+      document.getElementById('highestScore').textContent = highestScore;
+      document.getElementById('mostTens').textContent = mostTens;
+
+      // Update footer stats
+      document.getElementById('footerParticipants').textContent = count;
+      document.getElementById('footerHighest').textContent = highestScore;
+      document.getElementById('footerAverage').textContent = averageScore;
+      document.getElementById('footerMostTens').textContent = mostTens;
+      document.getElementById('footerDate').textContent = currentDate;
+    }
+
+
+    // Print function
+    function printResults() {
+      window.print();
+    }
+
+    // Initialize the page
+    function initializePage() {
+      try {
+        const processedParticipants = processParticipants();
+        
+        if (processedParticipants.length === 0) {
+          console.error('No participants to display');
+          return;
+        }
+
+        // Generate podium (top 3 only)
+        if (processedParticipants.length >= 3) {
+          document.getElementById('podiumContainer').innerHTML = generatePodiumHTML(processedParticipants);
+        } else {
+          document.getElementById('podiumSection').style.display = 'none';
+        }
+
+        // Generate table
+        document.getElementById('resultsTableBody').innerHTML = generateTableHTML(processedParticipants);
+
+        // Update statistics
+        updateStatistics(processedParticipants);
+
+                
+        console.log('Tournament results initialized successfully');
+        console.log('Processed participants:', processedParticipants);
+        
+      } catch (error) {
+        console.error('Error initializing tournament results:', error);
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initializePage);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'r' || event.key === 'R') {
+        event.preventDefault();
+        window.location.reload();
+      } else if (event.key === 'p' || event.key === 'P') {
+        event.preventDefault();
+        window.print();
+      }
+    });
+  </script>
+
+  <!-- Include i18n support -->
+  <script src="/static/js/i18n.js"></script>
+  <script>
+    // Initialize language selector and i18n
+    document.addEventListener('DOMContentLoaded', function() {
+      translatePage();
+    });
+  </script>
+</body>
+</html>
