@@ -212,8 +212,8 @@ function saveTournamentToHistory(entry) {
             const toDelete = allHistory.slice(4); // Keep only last 4, will add new one
 
             // Delete old entries
-            toDelete.forEach(entry => {
-                store.delete(entry.timestamp);
+            toDelete.forEach(oldEntry => {
+                store.delete(oldEntry.timestamp);
             });
 
             // Add new entry
@@ -221,7 +221,6 @@ function saveTournamentToHistory(entry) {
 
             addRequest.onsuccess = () => {
                 console.log('[App] Tournament saved to IndexedDB history');
-                resolve();
             };
 
             addRequest.onerror = () => {
@@ -233,6 +232,17 @@ function saveTournamentToHistory(entry) {
         getAllRequest.onerror = () => {
             console.error('[App] Error getting all history:', getAllRequest.error);
             reject(getAllRequest.error);
+        };
+
+        // Use transaction.oncomplete to ensure everything finishes
+        transaction.oncomplete = () => {
+            console.log('[App] Tournament history transaction completed');
+            resolve();
+        };
+
+        transaction.onerror = () => {
+            console.error('[App] Transaction error:', transaction.error);
+            reject(transaction.error);
         };
     });
 }
