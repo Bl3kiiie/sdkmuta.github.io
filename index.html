@@ -858,7 +858,6 @@
         .history-card:hover {
             border-color: #007bff;
             box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
-            transform: translateY(-4px);
         }
 
         .history-card-date {
@@ -3463,14 +3462,14 @@
                         restoreTournamentFromHistory(tournament);
                     });
 
-                    // Add hover effect
+                    // Add hover effect (border and shadow only, no movement)
                     card.addEventListener('mouseenter', () => {
-                        card.style.transform = 'translateY(-4px)';
+                        card.style.borderColor = '#007bff';
                         card.style.boxShadow = '0 8px 16px rgba(0, 123, 255, 0.3)';
                     });
 
                     card.addEventListener('mouseleave', () => {
-                        card.style.transform = 'translateY(0)';
+                        card.style.borderColor = '#e9ecef';
                         card.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                     });
 
