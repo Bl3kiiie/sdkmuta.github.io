@@ -108,7 +108,6 @@ function updateScore(playerId, target, bullet, value) {
         }
     }
 
-    updateTargetTotal(playerId, target);
     updatePlayerTotal(playerId);
     saveTournamentState();
 }
@@ -148,34 +147,6 @@ function capScore(inputElement) {
         }
 
         saveTournamentState();
-    }
-}
-
-/**
- * Update total for a specific target
- */
-function updateTargetTotal(playerId, target) {
-    let total = 0;
-    const playerScores = app.scores[playerId];
-
-    if (playerScores && playerScores[target]) {
-        for (let bullet in playerScores[target]) {
-            const score = playerScores[target][bullet];
-            if (score !== null && score !== undefined) {
-                total += parseInt(score) || 0;
-            }
-        }
-    }
-
-    const targetTotalEl = document.getElementById(`target-total-${playerId}-${target}`);
-    if (targetTotalEl) {
-        targetTotalEl.textContent = total;
-        // Highlight if all shots are 10s
-        if (total === 10 * app.tournamentConfig.bulletsPerTarget) {
-            targetTotalEl.classList.add('perfect-target');
-        } else {
-            targetTotalEl.classList.remove('perfect-target');
-        }
     }
 }
 

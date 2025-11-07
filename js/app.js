@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     renderPlayersList();
 
     // Load and display tournament history on participants page
-    displayParticipantsPageHistory();
+    await displayParticipantsPageHistory();
 
     setupAddPlayerButton();
     updateAllTranslations();
@@ -70,13 +70,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 /**
  * Start a new tournament (move to player selection)
  */
-function startNewTournament() {
+async function startNewTournament() {
     clearTournamentState();
     app.scores = {};
     app.lastResults = null;
     app.lastScores = null;
     app.lastPlayers = null;
     goToView('view-participants');
+    // Refresh history when returning to participants page
+    await displayParticipantsPageHistory();
 }
 
 /**
