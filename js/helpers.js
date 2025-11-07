@@ -66,6 +66,12 @@ function changeLanguage(lang) {
         renderScoringView();
     }
 
+    // Re-render results view if currently on that page (to update dynamic header title)
+    const activeResultsView = document.getElementById('view-results').classList.contains('active');
+    if (activeResultsView && app.lastResults) {
+        displayResults(app.lastResults);
+    }
+
     console.log('[App] Language changed to:', lang);
 }
 
