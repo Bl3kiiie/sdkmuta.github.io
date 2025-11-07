@@ -63,14 +63,6 @@ function renderScoringView() {
                 targetSection.appendChild(input);
             }
 
-            // Total for this target
-            const targetTotal = document.createElement('div');
-            targetTotal.className = 'target-total';
-            targetTotal.id = `target-total-${player.id}-${target}`;
-            targetTotal.textContent = '0';
-
-            targetSection.appendChild(targetTotal);
-
             targetsGrid.appendChild(targetSection);
         }
 
@@ -205,9 +197,6 @@ function updatePlayerTotal(playerId) {
  */
 function updateAllScoreTotals() {
     app.selectedPlayers.forEach(player => {
-        for (let target = 1; target <= app.tournamentConfig.targets; target++) {
-            updateTargetTotal(player.id, target);
-        }
         updatePlayerTotal(player.id);
     });
 }
