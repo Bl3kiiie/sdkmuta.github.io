@@ -1030,15 +1030,15 @@ html, body {
 }
 
 /* Dynamic history card header colors based on tournament type */
-.history-card-header-small-targets {
+.history-card-header.history-card-header-small-targets {
     background: #10b981 !important;
 }
 
-.history-card-header-medium-targets {
+.history-card-header.history-card-header-medium-targets {
     background: #ff6b6b !important;
 }
 
-.history-card-header-large-targets {
+.history-card-header.history-card-header-large-targets {
     background: #667eea !important;
 }
 
