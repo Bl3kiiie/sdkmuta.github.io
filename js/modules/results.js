@@ -191,11 +191,11 @@ function downloadExcel() {
 
 
         // Tournament Information Header
-        wsData.push(['Tournament Information']);
-        wsData.push(['Date', new Date().toLocaleDateString()]);
-        wsData.push(['Targets', targets]);
-        wsData.push(['Bullets per Target', bulletsPerTarget]);
-        wsData.push(['Total Players', app.lastResults.length]);
+        wsData.push([t('excel.tournament_info')]);
+        wsData.push([t('excel.date'), new Date().toLocaleDateString()]);
+        wsData.push([t('excel.targets'), targets]);
+        wsData.push([t('excel.bullets_per_target'), bulletsPerTarget]);
+        wsData.push([t('excel.total_players'), app.lastResults.length]);
         wsData.push([]);
 
         // Build header with targets as main columns and shots as sub-columns

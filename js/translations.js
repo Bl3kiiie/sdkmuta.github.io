@@ -106,7 +106,12 @@ const translations = {
         "excel.no_results": "No results to export. Please complete the tournament first.",
         "excel.export_error": "Error exporting to Excel:",
         "excel.target": "Target",
-        "excel.shot": "S"
+        "excel.shot": "S",
+        "excel.tournament_info": "Tournament Information",
+        "excel.date": "Date",
+        "excel.targets": "Targets",
+        "excel.bullets_per_target": "Bullets per Target",
+        "excel.total_players": "Total Players"
     },
     sl: {
         "tournament.tournament": "Turneja",
@@ -210,6 +215,11 @@ const translations = {
         "excel.no_results": "Ni rezultatov za izvoz. Prosimo, najprej zaključite turnir.",
         "excel.export_error": "Napaka pri izvozu v Excel:",
         "excel.target": "Tarča",
-        "excel.shot": "S"
+        "excel.shot": "S",
+        "excel.tournament_info": "Informacije o turnirju",
+        "excel.date": "Datum",
+        "excel.targets": "Tarče",
+        "excel.bullets_per_target": "Izstrelki na tarčo",
+        "excel.total_players": "Skupno igralcev"
     }
 };
