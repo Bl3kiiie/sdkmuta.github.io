@@ -93,7 +93,12 @@ function goToView(viewId) {
  * Toggle instructions panel
  */
 function toggleInstructions() {
-    const panel = document.querySelector('.instructions-panel');
+    // Find the active view
+    const activeView = document.querySelector('.view.active');
+    if (!activeView) return;
+
+    // Find instructions panel within the active view
+    const panel = activeView.querySelector('.instructions-panel');
     if (panel) {
         panel.classList.toggle('active');
     }
@@ -103,7 +108,12 @@ function toggleInstructions() {
  * Hide instructions panel
  */
 function hideInstructions() {
-    const panel = document.querySelector('.instructions-panel');
+    // Find the active view
+    const activeView = document.querySelector('.view.active');
+    if (!activeView) return;
+
+    // Find instructions panel within the active view
+    const panel = activeView.querySelector('.instructions-panel');
     if (panel) {
         panel.classList.remove('active');
     }
